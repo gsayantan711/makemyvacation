@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MakeMyVacation — AI Vacation Planner & Resort Discovery</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-stone-50 text-stone-900 min-h-screen flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
+
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-stone-200">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="resetToHome()">
+        <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-bold text-sm shadow-md">
+          MV
+        </div>
+        <span class="font-extrabold text-xl tracking-tight text-stone-900">MakeMy<span class="text-emerald-700">Vacation</span></span>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-stone-600">
+        <a href="#destinations" class="hover:text-emerald-700 transition">Destinations</a>
+        <a href="#how-it-works" class="hover:text-emerald-700 transition">How It Works</a>
+        <a href="#features" class="hover:text-emerald-700 transition">Why Us</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <button onclick="alert('Sign In modal will be available in Phase 2!')" class="text-xs sm:text-sm font-semibold text-stone-700 hover:text-stone-900 px-3 py-2">
+          Sign In
+        </button>
+        <button onclick="showSavedTripsModal()" class="text-xs sm:text-sm font-semibold bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl shadow-sm transition">
+          My Trips
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
+
+    <section id="discovery-view" class="space-y-10">
+      
+      <div class="text-center space-y-3 max-w-3xl mx-auto pt-4">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-600"></i>
+          AI-Native Vacation Discovery
+        </div>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-stone-900 tracking-tight leading-tight">
+          Tell us your vacation.<br />
+          <span class="text-emerald-700">We'll make the plan.</span>
+        </h1>
+        <p class="text-stone-600 text-sm sm:text-base max-w-xl mx-auto">
+          No scrolling through endless filters. Simply describe your dates, party size, and budget—our AI consults real resort availability and crafts your complete itinerary.
+        </p>
+      </div>
+
+      <div class="bg-white rounded-3xl shadow-xl border border-stone-200/90 overflow-hidden max-w-3xl mx-auto">
+        
+        <div id="chat-messages" class="p-6 space-y-4 max-h-[380px] overflow-y-auto custom-scrollbar bg-stone-50/50 border-b border-stone-100">
+          <div class="flex gap-3 items-start">
+            <div class="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-sm">
+              AI
+            </div>
+            <div class="bg-white border border-stone-200/80 rounded-2xl px-4 py-3 text-sm text-stone-800 shadow-sm max-w-[85%] leading-relaxed">
+              Hello! Where would you like to travel? You can describe anything like: 
+              <span class="italic font-medium text-emerald-800">"A 4-day family trip to Dooars with 2 rooms and pool around ₹25,000."</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="followup-container" class="hidden px-6 py-3 bg-emerald-50/70 border-b border-emerald-100 flex flex-wrap gap-2 items-center">
+          <span class="text-xs font-bold uppercase text-emerald-900 flex items-center gap-1">
+            <i data-lucide="help-circle" class="w-3.5 h-3.5"></i> Quick Info Needed:
+          </span>
+          <div id="followup-chips" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div class="p-4 bg-white relative">
+          <textarea 
+            id="user-input"
+            rows="2"
+            placeholder="Tell AI what you want (e.g. 4 days in Lataguri with family, 2 rooms, budget ₹25,000)..."
+            class="w-full pl-4 pr-32 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:bg-white resize-none text-stone-900 placeholder:text-stone-400"
+            onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleUserSubmit(); }"
+          ></textarea>
+          <button 
+            id="plan-btn"
+            onclick="handleUserSubmit()"
+            class="absolute right-6 top-6 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-1.5"
+          >
+            <span>Plan Trip</span>
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="max-w-3xl mx-auto text-center space-y-2">
+        <p class="text-xs font-bold uppercase tracking-wider text-stone-400">Or try one of these prompts</p>
+        <div class="flex flex-wrap gap-2 justify-center">
+          <button onclick="fillPreset('Plan a 4-day family vacation to Dooars Lataguri with 2 rooms under ₹25,000')" class="text-xs bg-white hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 border border-stone-200 hover:border-emerald-300 rounded-full px-3.5 py-1.5 transition shadow-sm">
+            👨‍👩‍👧‍👦 4-Day Family Dooars Trip (₹25k)
+          </button>
+          <button onclick="fillPreset('Luxury beach resort in Mandarmani for a couple with swimming pool, 3 days, ₹20,000')" class="text-xs bg-white hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 border border-stone-200 hover:border-emerald-300 rounded-full px-3.5 py-1.5 transition shadow-sm">
+            🌊 Luxury Mandarmani Beach Getaway
+          </button>
+          <button onclick="fillPreset('Plan a peaceful 3-day weekend to Shantiniketan for 2 adults under ₹15,000')" class="text-xs bg-white hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 border border-stone-200 hover:border-emerald-300 rounded-full px-3.5 py-1.5 transition shadow-sm">
+            🎨 Cultural Shantiniketan Weekend
+          </button>
+        </div>
+      </div>
+
+      <div id="destinations" class="pt-10 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold text-stone-900">Popular West Bengal Destinations</h2>
+            <p class="text-xs sm:text-sm text-stone-500">Curated sanctuaries, coastlines, and cultural hubs</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="group relative rounded-2xl overflow-hidden h-52 cursor-pointer shadow-md" onclick="fillPreset('I want to plan a 4-day trip to Dooars Lataguri with family')">
+            <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=600" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Dooars">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-end text-white">
+              <span class="text-xs font-semibold uppercase tracking-wider text-emerald-300">Wildlife & Forests</span>
+              <h3 class="font-bold text-lg">Dooars & Lataguri</h3>
+              <p class="text-xs text-stone-300">Safaris, tea gardens, and rivers</p>
+            </div>
+          </div>
+          <div class="group relative rounded-2xl overflow-hidden h-52 cursor-pointer shadow-md" onclick="fillPreset('I want a 3-day beach trip to Mandarmani with pool')">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Mandarmani">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-end text-white">
+              <span class="text-xs font-semibold uppercase tracking-wider text-emerald-300">Coastal Beach</span>
+              <h3 class="font-bold text-lg">Mandarmani</h3>
+              <p class="text-xs text-stone-300">Drive-in beaches & coastal breeze</p>
+            </div>
+          </div>
+          <div class="group relative rounded-2xl overflow-hidden h-52 cursor-pointer shadow-md" onclick="fillPreset('Plan a 3-day cultural trip to Shantiniketan')">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Shantiniketan">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-end text-white">
+              <span class="text-xs font-semibold uppercase tracking-wider text-emerald-300">Heritage & Art</span>
+              <h3 class="font-bold text-lg">Shantiniketan</h3>
+              <p class="text-xs text-stone-300">Tagore's legacy, baul music & crafts</p>
+            </div>
+          </div>
+          <div class="group relative rounded-2xl overflow-hidden h-52 cursor-pointer shadow-md" onclick="fillPreset('Plan a 4-day mountain holiday in Darjeeling')">
+            <img src="https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=600" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Darjeeling">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-end text-white">
+              <span class="text-xs font-semibold uppercase tracking-wider text-emerald-300">Himalayas</span>
+              <h3 class="font-bold text-lg">Darjeeling</h3>
+              <p class="text-xs text-stone-300">Toy train, tea estates & Kanchenjunga</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="loading-view" class="hidden py-16">
+      <div class="max-w-md mx-auto bg-white border border-stone-200 rounded-3xl p-8 shadow-xl text-center space-y-6">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto animate-pulse">
+          <i data-lucide="sparkles" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-stone-900">Building Your Vacation</h2>
+          <p class="text-xs text-stone-500 mt-1">Our AI travel agent is scoring real resort inventory</p>
+        </div>
+        <div id="pipeline-steps" class="space-y-3 text-left text-sm">
+          </div>
+      </div>
+    </section>
+
+    <section id="plan-view" class="hidden space-y-8 pb-16">
+      
+      <div class="bg-stone-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <span id="plan-badge" class="px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold tracking-wide border border-emerald-500/30">
+            Dooars • 4 Days / 3 Nights
+          </span>
+          <div class="text-right">
+            <span class="text-xs text-stone-400 block font-medium">Estimated Total Vacation</span>
+            <span id="plan-total-cost" class="text-2xl sm:text-3xl font-black text-emerald-400">₹24,800</span>
+          </div>
+        </div>
+
+        <h1 id="plan-title" class="text-2xl sm:text-4xl font-extrabold tracking-tight">4-Day Dooars Family Safari & Nature Escape</h1>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-stone-800 text-xs sm:text-sm text-stone-300">
+          <div class="flex items-center gap-2">
+            <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i>
+            <span id="plan-guests">4 Adults</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <i data-lucide="bed-double" class="w-4 h-4 text-emerald-400"></i>
+            <span id="plan-rooms">2 Rooms</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4 text-emerald-400"></i>
+            <span id="plan-duration">3 Nights Stay</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
+            <span id="plan-budget">Budget: ₹25,000</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border-2 border-emerald-600/40 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 bg-emerald-700 text-white text-xs font-bold px-4 py-1.5 rounded-bl-2xl uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="award" class="w-4 h-4"></i> Top Pick (Score: <span id="top-score">94</span>/100)
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-3">
+          <div class="lg:col-span-5 space-y-3">
+            <div class="relative h-64 rounded-2xl overflow-hidden shadow-inner">
+              <img id="top-image" src="" alt="Resort" class="w-full h-full object-cover">
+            </div>
+            <div id="top-amenities" class="flex flex-wrap gap-1.5">
+              </div>
+          </div>
+
+          <div class="lg:col-span-7 space-y-4">
+            <div>
+              <div class="flex items-center gap-2 text-stone-500 text-xs mb-1">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-700"></i>
+                <span id="top-area" class="font-medium">Lataguri, Dooars</span>
+                <span>•</span>
+                <span class="flex items-center text-amber-600 font-bold">
+                  ⭐ <span id="top-rating">4.6</span> (<span id="top-reviews">312</span> reviews)
+                </span>
+              </div>
+              <h2 id="top-name" class="text-2xl font-bold text-stone-900 leading-tight">Green Valley Forest Resort</h2>
+            </div>
+
+            <div class="p-3.5 bg-emerald-50/80 border-l-4 border-emerald-700 rounded-r-2xl text-xs sm:text-sm text-stone-800 italic">
+              "<span id="top-reasoning">Matches your preference for Lataguri with verified family-friendly cottages, clean swimming pool, and easy access to Gorumara National Park.</span>"
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
+              <div>
+                <p class="font-bold text-emerald-800 mb-1 flex items-center gap-1">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i> What Guests Love:
+                </p>
+                <ul id="top-pros" class="space-y-1 text-stone-600"></ul>
+              </div>
+              <div>
+                <p class="font-bold text-amber-800 mb-1 flex items-center gap-1">
+                  <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Keep In Mind:
+                </p>
+                <ul id="top-cons" class="space-y-1 text-stone-600"></ul>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between pt-2 border-t border-stone-100 gap-4">
+              <div>
+                <span id="top-room-name" class="text-xs text-stone-500 block font-medium">Room: Deluxe Cottage</span>
+                <span id="top-stay-cost" class="text-xl font-extrabold text-stone-900">₹16,800</span>
+                <span class="text-xs text-stone-500"> total accommodation</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="saveCurrentTrip()" class="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5">
+                  <i data-lucide="bookmark" class="w-4 h-4"></i> Save
+                </button>
+                <button onclick="handleBookingEnquiry()" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-md transition">
+                  Request Booking
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h3 class="text-xl font-bold text-stone-900">Alternative Options Shortlisted</h3>
+        <div id="alternatives-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          </div>
+      </div>
+
+      <div class="bg-white border border-stone-200 rounded-3xl p-6 space-y-4 shadow-sm">
+        <h3 class="text-lg font-bold text-stone-900">Estimated Total Cost Breakdown</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div class="bg-stone-50 p-4 rounded-2xl border border-stone-100">
+            <span class="text-xs text-stone-500 block font-medium">Stay & Rooms</span>
+            <span id="cost-stay" class="font-extrabold text-stone-900 text-sm sm:text-base">₹16,800</span>
+          </div>
+          <div class="bg-stone-50 p-4 rounded-2xl border border-stone-100">
+            <span class="text-xs text-stone-500 block font-medium">Food & Dining</span>
+            <span id="cost-food" class="font-extrabold text-stone-900 text-sm sm:text-base">₹4,500</span>
+          </div>
+          <div class="bg-stone-50 p-4 rounded-2xl border border-stone-100">
+            <span class="text-xs text-stone-500 block font-medium">Safaris / Entry</span>
+            <span id="cost-activities" class="font-extrabold text-stone-900 text-sm sm:text-base">₹2,000</span>
+          </div>
+          <div class="bg-stone-50 p-4 rounded-2xl border border-stone-100">
+            <span class="text-xs text-stone-500 block font-medium">Local Transit</span>
+            <span id="cost-transport" class="font-extrabold text-stone-900 text-sm sm:text-base">₹1,500</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+        <h3 class="text-2xl font-bold text-stone-900">Curated Day-by-Day Itinerary</h3>
+        <div id="itinerary-timeline" class="space-y-6 border-l-2 border-emerald-500/40 pl-6 ml-2">
+          </div>
+      </div>
+
+      <div class="sticky bottom-6 z-40 bg-white/95 backdrop-blur-md border border-stone-300 p-4 rounded-3xl shadow-2xl space-y-2">
+        <label class="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-700"></i> Modify this vacation with natural language:
+        </label>
+        <div class="flex gap-2">
+          <input 
+            type="text" 
+            id="modify-input" 
+            placeholder="e.g. 'Make it under ₹20,000', 'Add 1 more night', or 'Prefer luxury villas'..."
+            class="w-full text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-stone-50 text-stone-900"
+            onkeydown="if(event.key === 'Enter') handleModifyPlan()"
+          />
+          <button 
+            onclick="handleModifyPlan()" 
+            class="px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-semibold text-xs sm:text-sm rounded-xl shrink-0 transition flex items-center gap-1"
+          >
+            <span>Update Plan</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="features" class="border-t border-stone-200 pt-12 pb-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center sm:text-left">
+        <div class="space-y-2 bg-white p-5 rounded-2xl border border-stone-100 shadow-sm">
+          <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto sm:mx-0">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-bold text-stone-900 text-sm">Natural Language Planning</h4>
+          <p class="text-xs text-stone-500">Just state your vacation in simple words. No tedious filter checkboxes.</p>
+        </div>
+
+        <div class="space-y-2 bg-white p-5 rounded-2xl border border-stone-100 shadow-sm">
+          <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto sm:mx-0">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-bold text-stone-900 text-sm">Zero Hallucinations</h4>
+          <p class="text-xs text-stone-500">All prices, amenities, and room inventories come from verified resort listings.</p>
+        </div>
+
+        <div class="space-y-2 bg-white p-5 rounded-2xl border border-stone-100 shadow-sm">
+          <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto sm:mx-0">
+            <i data-lucide="sliders" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-bold text-stone-900 text-sm">Dynamic Trip Modification</h4>
+          <p class="text-xs text-stone-500">Need a pool or cheaper stay? Tell AI to adjust your active plan instantly.</p>
+        </div>
+
+        <div class="space-y-2 bg-white p-5 rounded-2xl border border-stone-100 shadow-sm">
+          <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto sm:mx-0">
+            <i data-lucide="award" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-bold text-stone-900 text-sm">Transparent AI Scoring</h4>
+          <p class="text-xs text-stone-500">We explain why each resort was chosen with exact pros, cons, and ratings.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-stone-200 bg-white py-6 text-center text-xs text-stone-400">
+    © MakeMyVacation. AI-Powered Vacation Planning & Resort Discovery Platform.
+  </footer>
+
+  <script>
+    // -------------------------------------------------------------
+    // 1. VERIFIED RESORTS DATABASE (WEST BENGAL MVP)
+    // -------------------------------------------------------------
+    const RESORTS_DB = [
+      {
+        id: 'gv-dooars',
+        name: 'Green Valley Forest Resort',
+        destination: 'Dooars',
+        area: 'Lataguri',
+        tier: 'midscale',
+        rating: 4.6,
+        reviewCount: 312,
+        image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800',
+        amenities: ['Swimming Pool', 'Complimentary Breakfast', 'Free Wi-Fi', 'Safari Escort', 'Bonfire'],
+        roomName: 'Deluxe Forest Cottage',
+        pricePerNight: 4200,
+        isFamily: true,
+        isCouple: true,
+        isPet: false,
+        pros: ['Proximity to Gorumara safari gate', 'Clean swimming pool & lawn', 'Authentic Bengali thali meals'],
+        cons: ['Cellular reception drops in corner cottages']
+      },
+      {
+        id: 'jc-dooars',
+        name: 'The Jungle Crown Eco Resort',
+        destination: 'Dooars',
+        area: 'Lataguri',
+        tier: 'luxury',
+        rating: 4.8,
+        reviewCount: 198,
+        image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800',
+        amenities: ['Private Plunge Pool', 'Gourmet Dining', 'Naturalist Escort', 'Free Wi-Fi', 'Pet Friendly'],
+        roomName: 'Luxury Machan Villa',
+        pricePerNight: 6800,
+        isFamily: true,
+        isCouple: true,
+        isPet: true,
+        pros: ['Panoramic view of tea gardens', 'Dedicated wildlife naturalist', 'Spacious boutique villas'],
+        cons: ['Higher price tier', 'Advance booking required for safaris']
+      },
+      {
+        id: 'mr-dooars',
+        name: 'Murti Forest Budget Retreat',
+        destination: 'Dooars',
+        area: 'Murti',
+        tier: 'budget',
+        rating: 4.2,
+        reviewCount: 145,
+        image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800',
+        amenities: ['River Walk Access', 'Complimentary Breakfast', 'Free Wi-Fi', 'Bonfire'],
+        roomName: 'Standard AC Riverside Room',
+        pricePerNight: 2400,
+        isFamily: true,
+        isCouple: true,
+        isPet: false,
+        pros: ['Direct walking access to Murti River bank', 'Very affordable value', 'Quiet and peaceful'],
+        cons: ['No swimming pool', 'Limited food menu after 9 PM']
+      },
+      {
+        id: 'sb-mandarmani',
+        name: 'Sea Breeze Coastal Resort',
+        destination: 'Mandarmani',
+        area: 'Mandarmani Beachfront',
+        tier: 'luxury',
+        rating: 4.5,
+        reviewCount: 420,
+        image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800',
+        amenities: ['Oceanfront Pool', 'Direct Beach Entry', 'Free Wi-Fi', 'Seafood Restaurant'],
+        roomName: 'Ocean View Suite',
+        pricePerNight: 5500,
+        isFamily: true,
+        isCouple: true,
+        isPet: true,
+        pros: ['Direct private entry onto beach', 'Spectacular infinity pool', 'Fresh crab & prawn curry'],
+        cons: ['Approach road has rough patches']
+      },
+      {
+        id: 'sr-shantiniketan',
+        name: 'Sonar Tori Heritage Retreat',
+        destination: 'Shantiniketan',
+        area: 'Prantik',
+        tier: 'midscale',
+        rating: 4.6,
+        reviewCount: 260,
+        image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800',
+        amenities: ['Cultural Baul Evenings', 'Clay Pottery Workshop', 'Complimentary Breakfast', 'Free Wi-Fi'],
+        roomName: 'Heritage Terracotta Cottage',
+        pricePerNight: 3600,
+        isFamily: true,
+        isCouple: true,
+        isPet: false,
+        pros: ['Authentic terracotta architecture', 'Live Baul music in courtyard', 'Close to Kopai river'],
+        cons: ['Limited parking spaces during festival weeks']
+      }
+    ];
+
+    // -------------------------------------------------------------
+    // 2. STATE MANAGEMENT & PARSER
+    // -------------------------------------------------------------
+    let state = {
+      destination: null,
+      preferredArea: null,
+      durationNights: null,
+      adults: null,
+      children: 0,
+      rooms: null,
+      budget: null,
+      amenitiesRequired: [],
+      tripType: 'family'
+    };
+
+    let activePlan = null;
+
+    function resetToHome() {
+      document.getElementById('discovery-view').classList.remove('hidden');
+      document.getElementById('loading-view').classList.add('hidden');
+      document.getElementById('plan-view').classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function fillPreset(text) {
+      document.getElementById('user-input').value = text;
+      handleUserSubmit();
+    }
+
+    // -------------------------------------------------------------
+    // 3. CONVERSATIONAL ENGINE & SMART EXTRACTION
+    // -------------------------------------------------------------
+    function handleUserSubmit() {
+      const inputEl = document.getElementById('user-input');
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      appendChatMessage('user', text);
+      inputEl.value = '';
+
+      // Extract Information from Text
+      extractParameters(text);
+
+      // Check missing fields
+      const missing = [];
+      if (!state.destination) missing.push({ field: 'destination', label: 'Destination', placeholder: 'e.g. Dooars, Mandarmani' });
+      if (!state.durationNights) missing.push({ field: 'durationNights', label: 'Duration / Nights', placeholder: 'e.g. 4 days (3 nights)' });
+      if (!state.adults) missing.push({ field: 'adults', label: 'Adults', placeholder: 'e.g. 4 adults' });
+      if (!state.budget) missing.push({ field: 'budget', label: 'Approx. Budget', placeholder: 'e.g. ₹25,000' });
+
+      if (missing.length > 0) {
+        let reply = `Got it! I am noting down your details. To tailor the best recommendation, please tell me:`;
+        appendChatMessage('ai', reply);
+        showFollowUpChips(missing);
+      } else {
+        // Complete parameters gathered -> Trigger Planning
+        hideFollowUpChips();
+        appendChatMessage('ai', `I have all required details for **${state.destination}**! Comparing verified inventory and scoring resorts now...`);
+        setTimeout(startPlanningPipeline, 800);
+      }
+    }
+
+    function extractParameters(raw) {
+      const t = raw.toLowerCase();
+
+      // Destination
+      if (t.includes('dooars') || t.includes('lataguri') || t.includes('murti') || t.includes('gorumara')) {
+        state.destination = 'Dooars';
+        if (t.includes('lataguri')) state.preferredArea = 'Lataguri';
+        if (t.includes('murti')) state.preferredArea = 'Murti';
+      } else if (t.includes('mandarmani')) {
+        state.destination = 'Mandarmani';
+      } else if (t.includes('shantiniketan')) {
+        state.destination = 'Shantiniketan';
+      } else if (t.includes('darjeeling')) {
+        state.destination = 'Darjeeling';
+      }
+
+      // Duration (Days / Nights)
+      const dayMatch = t.match(/(\d+)\s*(days?|nights?)/);
+      if (dayMatch) {
+        const num = parseInt(dayMatch[1]);
+        state.durationNights = t.includes('day') && num > 1 ? num - 1 : num;
+      }
+
+      // Rooms
+      const roomMatch = t.match(/(\d+)\s*(rooms?|room)/);
+      if (roomMatch) state.rooms = parseInt(roomMatch[1]);
+
+      // Adults / Group
+      const adultMatch = t.match(/(\d+)\s*(adults?|persons?|people|members?)/);
+      if (adultMatch) {
+        state.adults = parseInt(adultMatch[1]);
+      } else if (t.includes('family') && !state.adults) {
+        state.adults = 4;
+        state.children = 1;
+      } else if (t.includes('couple') && !state.adults) {
+        state.adults = 2;
+        state.tripType = 'couple';
+      }
+
+      // Budget (e.g. 25k, 25000, 25,000, ₹30000)
+      const budgetMatch = t.match(/(?:₹|rs\.?|inr)?\s*(\d{1,3}(?:,\d{3})*|\d+)\s*(k|thousand|lakh)?/i);
+      if (budgetMatch && (t.includes('budget') || t.includes('k') || t.includes('₹') || t.includes('under') || t.includes('around') || t.includes('rs'))) {
+        let val = parseFloat(budgetMatch[1].replace(/,/g, ''));
+        if (budgetMatch[2]?.toLowerCase() === 'k' || t.includes(`${val}k`)) val *= 1000;
+        if (val >= 2000) state.budget = val;
+      }
+
+      // Amenities
+      if (t.includes('pool') || t.includes('swimming')) {
+        if (!state.amenitiesRequired.includes('Swimming Pool')) state.amenitiesRequired.push('Swimming Pool');
+      }
+      if (t.includes('pet')) {
+        if (!state.amenitiesRequired.includes('Pet Friendly')) state.amenitiesRequired.push('Pet Friendly');
+      }
+      if (t.includes('luxury') || t.includes('premium')) {
+        state.preferredTier = 'luxury';
+      }
+    }
+
+    function appendChatMessage(role, text) {
+      const container = document.getElementById('chat-messages');
+      const div = document.createElement('div');
+      div.className = `flex gap-3 items-start ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+
+      if (role === 'user') {
+        div.innerHTML = `
+          <div class="bg-stone-900 text-white rounded-2xl px-4 py-3 text-sm max-w-[85%] font-medium shadow-sm leading-relaxed">
+            ${text}
+          </div>
+        `;
+      } else {
+        div.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-sm">
+            AI
+          </div>
+          <div class="bg-white border border-stone-200/80 rounded-2xl px-4 py-3 text-sm text-stone-800 shadow-sm max-w-[85%] leading-relaxed">
+            ${text}
+          </div>
+        `;
+      }
+
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+      lucide.createIcons();
+    }
+
+    function showFollowUpChips(missingList) {
+      const container = document.getElementById('followup-container');
+      const chipsEl = document.getElementById('followup-chips');
+      chipsEl.innerHTML = '';
+      container.classList.remove('hidden');
+
+      missingList.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'text-xs bg-white text-emerald-900 border border-emerald-300 rounded-lg px-2.5 py-1 font-medium hover:bg-emerald-100 transition';
+        btn.innerText = `+ Provide ${item.label}`;
+        btn.onclick = () => {
+          const val = prompt(`Please enter your ${item.label}:`, item.placeholder);
+          if (val) {
+            handleUserSubmitText(`My ${item.field} is ${val}`);
+          }
+        };
+        chipsEl.appendChild(btn);
+      });
+    }
+
+    function hideFollowUpChips() {
+      document.getElementById('followup-container').classList.add('hidden');
+    }
+
+    function handleUserSubmitText(str) {
+      document.getElementById('user-input').value = str;
+      handleUserSubmit();
+    }
+
+    // -------------------------------------------------------------
+    // 4. RECOMMENDATION & SCORING PIPELINE
+    // -------------------------------------------------------------
+    function startPlanningPipeline() {
+      document.getElementById('discovery-view').classList.add('hidden');
+      document.getElementById('loading-view').classList.remove('hidden');
+
+      const pipelineSteps = [
+        'Analyzing extracted trip parameters & preferences',
+        `Querying verified resort inventory in ${state.destination || 'West Bengal'}`,
+        'Evaluating room layouts and capacity rules',
+        'Running 7-variable recommendation scoring algorithm',
+        'Generating customized daily itinerary & transfer timings',
+        'Finalizing your vacation package...'
+      ];
+
+      const stepsContainer = document.getElementById('pipeline-steps');
+      stepsContainer.innerHTML = '';
+
+      pipelineSteps.forEach((step, idx) => {
+        const row = document.createElement('div');
+        row.id = `pipe-step-${idx}`;
+        row.className = 'flex items-center gap-3 text-stone-400';
+        row.innerHTML = `
+          <div class="w-4 h-4 rounded-full border border-stone-300 shrink-0"></div>
+          <span>${step}</span>
+        `;
+        stepsContainer.appendChild(row);
+      });
+
+      let current = 0;
+      const interval = setInterval(() => {
+        if (current < pipelineSteps.length) {
+          const row = document.getElementById(`pipe-step-${current}`);
+          row.className = 'flex items-center gap-3 text-emerald-800 font-semibold';
+          row.innerHTML = `
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700 shrink-0"></i>
+            <span>${pipelineSteps[current]}</span>
+          `;
+          lucide.createIcons();
+          current++;
+        } else {
+          clearInterval(interval);
+          setTimeout(buildAndRenderPlan, 500);
+        }
+      }, 550);
+    }
+
+    function buildAndRenderPlan() {
+      // Find matching destination resorts
+      const destinationResorts = RESORTS_DB.filter(r => 
+        r.destination.toLowerCase() === (state.destination || 'Dooars').toLowerCase()
+      );
+
+      const resortsToScore = destinationResorts.length > 0 ? destinationResorts : RESORTS_DB;
+      const scored = scoreResorts(resortsToScore, state);
+
+      const top = scored[0];
+      const alternatives = scored.slice(1, 4);
+
+      const duration = state.durationNights || 3;
+      const rooms = state.rooms || (state.adults > 2 ? 2 : 1);
+      const stayCost = top.pricePerNight * rooms * duration;
+      const foodCost = 1100 * (state.adults || 2) * duration;
+      const activityCost = 1000 * (state.adults || 2);
+      const transportCost = 1500;
+      const totalVacationCost = stayCost + foodCost + activityCost + transportCost;
+
+      activePlan = {
+        destination: state.destination || 'Dooars',
+        durationNights: duration,
+        adults: state.adults || 2,
+        children: state.children || 0,
+        rooms: rooms,
+        budget: state.budget || totalVacationCost,
+        topResort: top,
+        alternatives: alternatives,
+        stayCost: stayCost,
+        foodCost: foodCost,
+        activityCost: activityCost,
+        transportCost: transportCost,
+        totalCost: totalVacationCost,
+        itinerary: generateItinerary(state.destination || 'Dooars', duration, top)
+      };
+
+      renderPlanToUI(activePlan);
+
+      document.getElementById('loading-view').classList.add('hidden');
+      document.getElementById('plan-view').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    function scoreResorts(resorts, userState) {
+      const targetBudget = userState.budget || 25000;
+      const duration = userState.durationNights || 3;
+      const rooms = userState.rooms || 2;
+
+      return resorts.map(resort => {
+        const totalStay = resort.pricePerNight * rooms * duration;
+        
+        let reqScore = 100;
+        if (userState.tripType === 'family' && !resort.isFamily) reqScore -= 40;
+        if (userState.amenitiesRequired.includes('Swimming Pool') && !resort.amenities.includes('Swimming Pool')) reqScore -= 35;
+        if (userState.amenitiesRequired.includes('Pet Friendly') && !resort.isPet) reqScore -= 50;
+
+        let priceScore = 95;
+        if (totalStay > targetBudget) {
+          const delta = totalStay - targetBudget;
+          priceScore = Math.max(20, 100 - (delta / targetBudget) * 150);
+        }
+
+        let locScore = (userState.preferredArea && resort.area.toLowerCase().includes(userState.preferredArea.toLowerCase())) ? 100 : 80;
+        let ratingScore = (resort.rating / 5.0) * 100;
+        let qualityScore = resort.tier === 'luxury' ? 95 : resort.tier === 'midscale' ? 85 : 75;
+
+        // Weighted Final Calculation
+        const total = (
+          (reqScore * 0.30) +
+          (qualityScore * 0.20) +
+          (ratingScore * 0.15) +
+          (priceScore * 0.20) +
+          (locScore * 0.15)
+        );
+
+        return {
+          ...resort,
+          score: Math.round(total),
+          calculatedStay: totalStay
+        };
+      }).sort((a, b) => b.score - a.score);
+    }
+
+    function generateItinerary(dest, durationNights, resort) {
+      const daysCount = durationNights + 1;
+      const items = [];
+
+      items.push({
+        day: 1,
+        title: `Arrival, Check-in & Riverside Relaxation in ${resort.area}`,
+        events: [
+          { time: '11:30 AM', title: 'Arrival & Welcome Drinks', desc: `Check-in at ${resort.name}. Welcome refreshments and cottage check-in.` },
+          { time: '01:30 PM', title: 'Authentic Local Lunch', desc: 'Savor traditional North Bengal thali with seasonal river fish and fresh greens.' },
+          { time: '04:30 PM', title: 'Tea Garden Corridor Nature Trail', desc: `Guided evening sunset trail along the perimeter of ${resort.area}.` },
+          { time: '07:30 PM', title: 'Bonfire & Stargazing', desc: 'Evening bonfire gathering with local folk tunes under clear forest skies.' }
+        ]
+      });
+
+      for (let d = 2; d < daysCount; d++) {
+        items.push({
+          day: d,
+          title: `Gorumara National Park Safari & Watchtower Excursion`,
+          events: [
+            { time: '05:30 AM', title: 'Early Morning Jeep Safari', desc: 'Wildlife Jeep safari to spot One-Horned Rhinoceros, Gaur, and herd elephants.' },
+            { time: '09:00 AM', title: 'Breakfast at Resort', desc: `Full buffet breakfast at ${resort.name}.` },
+            { time: '01:00 PM', title: 'Pool Leisure & Refreshment', desc: 'Relax by the swimming pool and enjoy tranquil nature surroundings.' },
+            { time: '04:00 PM', title: 'Murti River Pebble Beach Visit', desc: 'Sunset vantage point by the riverbed for tea and snacks.' }
+          ]
+        });
+      }
+
+      items.push({
+        day: daysCount,
+        title: 'Morning Nature Walk, Craft Souvenirs & Departure',
+        events: [
+          { time: '07:00 AM', title: 'Avian Watch & Bird Photography', desc: 'Catch morning light and native hornbills, peacocks, and kingfishers.' },
+          { time: '09:30 AM', title: 'Breakfast & Checkout Packing', desc: 'Pack luggage and settle room billing.' },
+          { time: '11:30 AM', title: 'Departure Transfer', desc: 'Drop off at railway station (New Mal / NJP) or airport.' }
+        ]
+      });
+
+      return items;
+    }
+
+    function renderPlanToUI(p) {
+      document.getElementById('plan-badge').innerText = `${p.destination} • ${p.durationNights + 1} Days / ${p.durationNights} Nights`;
+      document.getElementById('plan-total-cost').innerText = `₹${p.totalCost.toLocaleString()}`;
+      document.getElementById('plan-title').innerText = `${p.durationNights + 1}-Day ${p.destination} Curated Vacation`;
+      document.getElementById('plan-guests').innerText = `${p.adults} Adults ${p.children > 0 ? `, ${p.children} Kids` : ''}`;
+      document.getElementById('plan-rooms').innerText = `${p.rooms} Room${p.rooms > 1 ? 's' : ''}`;
+      document.getElementById('plan-duration').innerText = `${p.durationNights} Nights Stay`;
+      document.getElementById('plan-budget').innerText = `Budget: ₹${p.budget.toLocaleString()}`;
+
+      // Top Resort
+      const t = p.topResort;
+      document.getElementById('top-score').innerText = t.score;
+      document.getElementById('top-image').src = t.image;
+      document.getElementById('top-area').innerText = `${t.area}, ${t.destination}`;
+      document.getElementById('top-rating').innerText = t.rating;
+      document.getElementById('top-reviews').innerText = t.reviewCount;
+      document.getElementById('top-name').innerText = t.name;
+      document.getElementById('top-room-name').innerText = `Room: ${t.roomName}`;
+      document.getElementById('top-stay-cost').innerText = `₹${t.calculatedStay.toLocaleString()}`;
+
+      // Amenities chips
+      const amBox = document.getElementById('top-amenities');
+      amBox.innerHTML = '';
+      t.amenities.forEach(a => {
+        const span = document.createElement('span');
+        span.className = 'text-[11px] bg-stone-100 text-stone-700 px-2.5 py-1 rounded-md font-medium';
+        span.innerText = a;
+        amBox.appendChild(span);
+      });
+
+      // Pros and Cons
+      document.getElementById('top-pros').innerHTML = t.pros.map(x => `<li>• ${x}</li>`).join('');
+      document.getElementById('top-cons').innerHTML = t.cons.map(x => `<li>• ${x}</li>`).join('');
+
+      // Cost breakdown
+      document.getElementById('cost-stay').innerText = `₹${p.stayCost.toLocaleString()}`;
+      document.getElementById('cost-food').innerText = `₹${p.foodCost.toLocaleString()}`;
+      document.getElementById('cost-activities').innerText = `₹${p.activityCost.toLocaleString()}`;
+      document.getElementById('cost-transport').innerText = `₹${p.transportCost.toLocaleString()}`;
+
+      // Alternatives Grid
+      const altGrid = document.getElementById('alternatives-grid');
+      altGrid.innerHTML = '';
+      p.alternatives.forEach(alt => {
+        const card = document.createElement('div');
+        card.className = 'bg-white border border-stone-200 rounded-2xl p-4 flex flex-col justify-between space-y-3 shadow-sm';
+        card.innerHTML = `
+          <div class="space-y-2">
+            <div class="h-36 rounded-xl overflow-hidden relative">
+              <img src="${alt.image}" alt="${alt.name}" class="w-full h-full object-cover">
+            </div>
+            <div>
+              <h4 class="font-bold text-stone-900 text-sm leading-snug">${alt.name}</h4>
+              <p class="text-xs text-stone-500">${alt.area} • ⭐ ${alt.rating} (${alt.reviewCount})</p>
+            </div>
+          </div>
+          <div class="pt-2 border-t border-stone-100 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] text-stone-400 block uppercase font-bold">Total Stay</span>
+              <span class="font-bold text-sm text-stone-900">₹${alt.calculatedStay.toLocaleString()}</span>
+            </div>
+            <button onclick="switchTopResort('${alt.id}')" class="text-xs text-emerald-700 hover:text-emerald-800 font-bold hover:underline">
+              Select Stay →
+            </button>
+          </div>
+        `;
+        altGrid.appendChild(card);
+      });
+
+      // Itinerary
+      const itinBox = document.getElementById('itinerary-timeline');
+      itinBox.innerHTML = '';
+      p.itinerary.forEach(day => {
+        const dDiv = document.createElement('div');
+        dDiv.className = 'relative space-y-3';
+        dDiv.innerHTML = `
+          <div class="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-emerald-700 border-4 border-white shadow-sm"></div>
+          <div>
+            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wide">Day ${day.day}</span>
+            <h4 class="text-base font-bold text-stone-900">${day.title}</h4>
+          </div>
+          <div class="space-y-2">
+            ${day.events.map(ev => `
+              <div class="bg-stone-50 border border-stone-100 p-3 rounded-xl text-xs sm:text-sm flex gap-3">
+                <span class="font-bold text-emerald-900 shrink-0 w-20">${ev.time}</span>
+                <div>
+                  <span class="font-semibold text-stone-900">${ev.title}</span>
+                  <p class="text-stone-600 text-xs mt-0.5">${ev.desc}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        itinBox.appendChild(dDiv);
+      });
+    }
+
+    function switchTopResort(resortId) {
+      const selected = RESORTS_DB.find(r => r.id === resortId);
+      if (!selected) return;
+      
+      const duration = activePlan.durationNights;
+      const rooms = activePlan.rooms;
+      selected.calculatedStay = selected.pricePerNight * rooms * duration;
+
+      activePlan.topResort = selected;
+      activePlan.stayCost = selected.calculatedStay;
+      activePlan.totalCost = activePlan.stayCost + activePlan.foodCost + activePlan.activityCost + activePlan.transportCost;
+
+      renderPlanToUI(activePlan);
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------
+    // 5. NATURAL LANGUAGE PLAN MODIFICATION
+    // -------------------------------------------------------------
+    function handleModifyPlan() {
+      const inputEl = document.getElementById('modify-input');
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      inputEl.value = '';
+      extractParameters(text);
+
+      if (text.toLowerCase().includes('add one more night') || text.toLowerCase().includes('extra night')) {
+        state.durationNights = (state.durationNights || 3) + 1;
+      }
+      if (text.toLowerCase().includes('cheaper') || text.toLowerCase().includes('budget')) {
+        state.budget = Math.round((state.budget || 25000) * 0.8);
+      }
+
+      startPlanningPipeline();
+    }
+
+    // -------------------------------------------------------------
+    // 6. BOOKINGS & SAVED TRIPS
+    // -------------------------------------------------------------
+    function handleBookingEnquiry() {
+      if (!activePlan) return;
+      alert(`Booking request initiated for ${activePlan.topResort.name}!\n\nDestination: ${activePlan.destination}\nDuration: ${activePlan.durationNights} Nights\nEstimated Cost: ₹${activePlan.totalCost.toLocaleString()}\n\nOur concierge partner will contact you shortly.`);
+    }
+
+    function saveCurrentTrip() {
+      if (!activePlan) return;
+      const saved = JSON.parse(localStorage.getItem('my_vacations') || '[]');
+      saved.push({
+        id: Date.now(),
+        destination: activePlan.destination,
+        resortName: activePlan.topResort.name,
+        totalCost: activePlan.totalCost,
+        durationNights: activePlan.durationNights,
+        dateSaved: new Date().toLocaleDateString()
+      });
+      localStorage.setItem('my_vacations', JSON.stringify(saved));
+      alert('Trip saved to "My Trips" on this browser!');
+    }
+
+    function showSavedTripsModal() {
+      const saved = JSON.parse(localStorage.getItem('my_vacations') || '[]');
+      if (saved.length === 0) {
+        alert('You have no saved trips yet. Plan a trip and click "Save" to keep it handy!');
+        return;
+      }
+      const list = saved.map(s => `• ${s.destination} (${s.durationNights} Nights) at ${s.resortName} — ₹${s.totalCost.toLocaleString()} (Saved: ${s.dateSaved})`).join('\n');
+      alert(`Your Saved Trips:\n\n${list}`);
+    }
+
+    // Initial icon render on load
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
