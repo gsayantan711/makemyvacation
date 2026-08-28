@@ -50,7 +50,7 @@
 
   <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
 
-    <section id="discovery-view" class="space-y-10">
+    <section id="discovery-view" class="space-y-8">
       <div class="text-center space-y-3 max-w-3xl mx-auto pt-4">
         <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -58,36 +58,47 @@
         </div>
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-stone-900 tracking-tight leading-tight">
           Tell us your vacation.<br />
-          <span class="text-emerald-700">Our AI will make the plan.</span>
+          <span class="text-emerald-700">We'll ask, adjust & plan.</span>
         </h1>
         <p class="text-stone-600 text-sm sm:text-base max-w-xl mx-auto">
-          Ask travel questions or describe your vacation in plain language. Our AI concierge scans verified resort inventories, calculates transparent costs, and drafts complete day-by-day itineraries.
+          Start by describing your trip. If any key details like budget or dates are missing, our AI will ask quick follow-ups to craft your recommendation.
         </p>
       </div>
 
       <div class="bg-white rounded-3xl shadow-xl border border-stone-200 overflow-hidden max-w-3xl mx-auto">
+        
+        <div id="status-tracker" class="px-6 py-2.5 bg-stone-100 border-b border-stone-200 text-xs flex flex-wrap items-center justify-between gap-2 text-stone-600">
+          <span class="font-bold text-stone-800 uppercase tracking-wider text-[11px]">Trip Requirements:</span>
+          <div class="flex flex-wrap gap-2 text-[11px]" id="status-chips">
+            <span id="badge-dest" class="px-2 py-0.5 rounded-md bg-stone-200 text-stone-600">📍 Destination: Pending</span>
+            <span id="badge-days" class="px-2 py-0.5 rounded-md bg-stone-200 text-stone-600">📅 Duration: Pending</span>
+            <span id="badge-guests" class="px-2 py-0.5 rounded-md bg-stone-200 text-stone-600">👥 Guests: Pending</span>
+            <span id="badge-budget" class="px-2 py-0.5 rounded-md bg-stone-200 text-stone-600">💰 Budget: Pending</span>
+          </div>
+        </div>
+
         <div id="chat-messages" class="p-6 space-y-4 max-h-[380px] overflow-y-auto custom-scrollbar bg-stone-50/60 border-b border-stone-100">
           <div class="flex gap-3 items-start">
             <div class="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-sm">
               AI
             </div>
             <div class="bg-white border border-stone-200 rounded-2xl px-4 py-3 text-sm text-stone-800 shadow-sm max-w-[85%] leading-relaxed">
-              Hello! I am your personal vacation consultant. Tell me where you'd like to go or what you're looking for:
-              <span class="italic font-medium text-emerald-800 block mt-1">"A 4-day family trip to Dooars Lataguri with 2 rooms, pool, and a budget of ₹25,000."</span>
+              Hello! I am your AI vacation assistant. Tell me where you'd like to travel:
+              <span class="italic font-medium text-emerald-800 block mt-1">"I want to go to Dooars with my family" or "A romantic trip to Mandarmani"</span>
             </div>
           </div>
         </div>
 
-        <div id="followup-container" class="hidden px-6 py-3 bg-emerald-50/90 border-b border-emerald-100 flex flex-wrap gap-2 items-center">
-          <span class="text-xs font-bold uppercase text-emerald-900">ℹ️ Quick Setup:</span>
-          <div id="followup-chips" class="flex flex-wrap gap-2"></div>
+        <div id="quick-reply-container" class="hidden px-6 py-3 bg-emerald-50/90 border-b border-emerald-100 flex flex-wrap gap-2 items-center">
+          <span class="text-xs font-bold uppercase text-emerald-900">💡 Quick Select:</span>
+          <div id="quick-reply-chips" class="flex flex-wrap gap-2"></div>
         </div>
 
         <div class="p-4 bg-white relative">
           <textarea 
             id="user-input"
             rows="2"
-            placeholder="Tell our AI what you want (e.g. 4 days in Lataguri with family, 2 rooms, budget ₹25,000)..."
+            placeholder="Type your answer or vacation request here..."
             class="w-full pl-4 pr-32 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:bg-white resize-none text-stone-900 placeholder:text-stone-400"
           ></textarea>
           <button 
@@ -96,32 +107,32 @@
             onclick="handleUserSubmit()"
             class="absolute right-6 top-6 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer"
           >
-            <span id="plan-btn-text">Plan Trip</span>
+            <span id="plan-btn-text">Send</span>
             <span>✨</span>
           </button>
         </div>
       </div>
 
       <div class="max-w-3xl mx-auto text-center space-y-2">
-        <p class="text-xs font-bold uppercase tracking-wider text-stone-400">Or click a sample prompt</p>
+        <p class="text-xs font-bold uppercase tracking-wider text-stone-400">Or try a sample request</p>
         <div class="flex flex-wrap gap-2 justify-center">
-          <button onclick="fillPreset('Plan a 4-day family vacation to Dooars Lataguri with 2 rooms under ₹25,000')" class="text-xs bg-white hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 border border-stone-200 hover:border-emerald-300 rounded-full px-3.5 py-1.5 transition shadow-sm font-medium cursor-pointer">
-            👨‍👩‍👧‍👦 4-Day Family Dooars Trip (₹25k)
+          <button onclick="fillPreset('I want to go to Dooars for a vacation with my family')" class="text-xs bg-white hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 border border-stone-200 hover:border-emerald-300 rounded-full px-3.5 py-1.5 transition shadow-sm font-medium cursor-pointer">
+            🌲 "I want to go to Dooars with family" (AI asks follow-ups)
           </button>
-          <button onclick="fillPreset('Luxury beach resort in Mandarmani for a couple with swimming pool, 3 days, ₹20,000')" class="text-xs bg-white hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 border border-stone-200 hover:border-emerald-300 rounded-full px-3.5 py-1.5 transition shadow-sm font-medium cursor-pointer">
-            🌊 Luxury Mandarmani Beach Getaway
+          <button onclick="fillPreset('Plan a 4-day trip to Lataguri, 2 rooms, pool, budget ₹25,000 for 4 people')" class="text-xs bg-white hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 border border-stone-200 hover:border-emerald-300 rounded-full px-3.5 py-1.5 transition shadow-sm font-medium cursor-pointer">
+            ✨ Full Details Provided (Immediate Plan)
           </button>
-          <button onclick="fillPreset('What is the best time to visit Darjeeling and how to reach?')" class="text-xs bg-white hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 border border-stone-200 hover:border-emerald-300 rounded-full px-3.5 py-1.5 transition shadow-sm font-medium cursor-pointer">
-            ❓ Best time & transit for Darjeeling?
+          <button onclick="fillPreset('Mandarmani beach weekend for couple')" class="text-xs bg-white hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 border border-stone-200 hover:border-emerald-300 rounded-full px-3.5 py-1.5 transition shadow-sm font-medium cursor-pointer">
+            🌊 "Mandarmani beach weekend for couple"
           </button>
         </div>
       </div>
 
-      <div class="pt-10 space-y-4">
+      <div class="pt-8 space-y-4">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-xl sm:text-2xl font-bold text-stone-900">West Bengal Gateway Destinations</h2>
-            <p class="text-xs sm:text-sm text-stone-500">Pick any destination to generate your plan instantly</p>
+            <p class="text-xs sm:text-sm text-stone-500">Pick any destination to begin conversing</p>
           </div>
           <a href="destinations.html" class="text-xs sm:text-sm font-bold text-emerald-700 hover:underline">View All →</a>
         </div>
@@ -135,8 +146,8 @@
           ✨
         </div>
         <div>
-          <h2 class="text-xl font-bold text-stone-900">Assembling Your Vacation</h2>
-          <p class="text-xs text-stone-500 mt-1">Evaluating live options & calculating day-by-day timings</p>
+          <h2 class="text-xl font-bold text-stone-900">All Requirements Gathered!</h2>
+          <p class="text-xs text-stone-500 mt-1">Our AI is scoring resorts and tailoring your daily schedule</p>
         </div>
         <div id="pipeline-steps" class="space-y-3 text-left text-sm"></div>
       </div>
@@ -260,7 +271,7 @@
           <input 
             type="text" 
             id="modify-input" 
-            placeholder="e.g. 'Make it under ₹20,000', 'Add 1 more night', or 'Include more wildlife safaris'..."
+            placeholder="e.g. 'Make it under ₹20,000', 'Add 1 more night', or 'Prefer riverside cottages'..."
             class="w-full text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-stone-50 text-stone-900"
           />
           <button 
@@ -523,7 +534,7 @@
         if (entered.trim()) {
           alert("✅ AI Engine Connected!");
         } else {
-          alert("Operating with built-in heuristic intelligence.");
+          alert("Operating with built-in conversational intelligence.");
         }
       }
     }
@@ -543,11 +554,7 @@
       const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
       const payload = {
-        contents: [
-          {
-            parts: [{ text: prompt }]
-          }
-        ]
+        contents: [{ parts: [{ text: prompt }] }]
       };
 
       if (isJson) {
@@ -569,7 +576,7 @@
       return data.candidates?.[0]?.content?.parts?.[0]?.text;
     }
 
-    // 3. CONVERSATION & PARSING STATE
+    // 3. CONVERSATION & SMART REQUIREMENT TRACKER
     let state = {
       destination: null,
       preferredArea: null,
@@ -583,10 +590,47 @@
     };
     let activePlan = null;
 
+    function updateLiveBadges() {
+      const d = document.getElementById('badge-dest');
+      const dy = document.getElementById('badge-days');
+      const g = document.getElementById('badge-guests');
+      const b = document.getElementById('badge-budget');
+
+      if (d) {
+        d.className = state.destination ? "px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold" : "px-2 py-0.5 rounded-md bg-stone-200 text-stone-600";
+        d.innerText = state.destination ? `📍 ${state.destination}` : "📍 Destination: Needed";
+      }
+      if (dy) {
+        dy.className = state.durationNights ? "px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold" : "px-2 py-0.5 rounded-md bg-stone-200 text-stone-600";
+        dy.innerText = state.durationNights ? `📅 ${state.durationNights + 1} Days (${state.durationNights}N)` : "📅 Duration: Needed";
+      }
+      if (g) {
+        g.className = state.adults ? "px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold" : "px-2 py-0.5 rounded-md bg-stone-200 text-stone-600";
+        g.innerText = state.adults ? `👥 ${state.adults} Guests (${state.rooms || (state.adults > 2 ? 2 : 1)} R)` : "👥 Guests: Needed";
+      }
+      if (b) {
+        b.className = state.budget ? "px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold" : "px-2 py-0.5 rounded-md bg-stone-200 text-stone-600";
+        b.innerText = state.budget ? `💰 ₹${state.budget.toLocaleString()}` : "💰 Budget: Needed";
+      }
+    }
+
     function resetToHome() {
+      state = {
+        destination: null,
+        preferredArea: null,
+        durationNights: null,
+        adults: null,
+        children: 0,
+        rooms: null,
+        budget: null,
+        amenitiesRequired: [],
+        tripType: 'family'
+      };
+      updateLiveBadges();
       document.getElementById('discovery-view').classList.remove('hidden');
       document.getElementById('loading-view').classList.add('hidden');
       document.getElementById('plan-view').classList.add('hidden');
+      hideQuickReplies();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -610,6 +654,27 @@
       container.scrollTop = container.scrollHeight;
     }
 
+    function showQuickReplies(chips) {
+      const container = document.getElementById('quick-reply-container');
+      const chipBox = document.getElementById('quick-reply-chips');
+      chipBox.innerHTML = '';
+      chips.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = "text-xs bg-white hover:bg-emerald-100 text-emerald-900 font-semibold px-3 py-1.5 rounded-lg border border-emerald-300 transition shadow-sm cursor-pointer";
+        btn.innerText = c.label;
+        btn.onclick = () => {
+          document.getElementById('user-input').value = c.value;
+          handleUserSubmit();
+        };
+        chipBox.appendChild(btn);
+      });
+      container.classList.remove('hidden');
+    }
+
+    function hideQuickReplies() {
+      document.getElementById('quick-reply-container').classList.add('hidden');
+    }
+
     async function handleUserSubmit() {
       const inputEl = document.getElementById('user-input');
       const text = inputEl.value.trim();
@@ -617,34 +682,23 @@
 
       appendChatMessage('user', text);
       inputEl.value = '';
+      hideQuickReplies();
 
       const btn = document.getElementById('plan-btn-text');
-      if (btn) btn.innerText = "Thinking...";
-
-      const isQuestion = text.toLowerCase().includes('what') || 
-                         text.toLowerCase().includes('how') || 
-                         text.toLowerCase().includes('why') || 
-                         text.toLowerCase().includes('best time') || 
-                         text.toLowerCase().includes('where to') ||
-                         text.endsWith('?');
+      if (btn) btn.innerText = "Checking...";
 
       const apiKey = getStoredApiKey();
 
+      // Extract parameters using AI if connected, else heuristic
       if (apiKey) {
         try {
-          if (isQuestion && !text.toLowerCase().includes('plan') && !text.toLowerCase().includes('book')) {
-            const aiReply = await executeAIRequest(`You are MakeMyVacation's senior travel advisor for West Bengal, India. Answer this traveler's question clearly, concisely, and warmly in 2-3 short paragraphs without mentioning external brand names:\n\n"${text}"`);
-            appendChatMessage('ai', aiReply || "Here is what I found for your journey!");
-            if (btn) btn.innerText = "Plan Trip";
-            return;
-          }
-
           const extractPrompt = `
 You are MakeMyVacation's internal trip engine (West Bengal, India).
-Extract vacation parameters from this user message: "${text}".
+Extract new trip details from this user message: "${text}".
+Current known state: ${JSON.stringify(state)}
 Available destinations: Dooars, Lataguri, Murti, Mandarmani, Shantiniketan, Darjeeling.
 
-Return STRICT JSON with these exact keys:
+Return STRICT JSON:
 {
   "destination": string or null,
   "preferredArea": string or null,
@@ -652,8 +706,7 @@ Return STRICT JSON with these exact keys:
   "adults": number or null,
   "rooms": number or null,
   "budget": number or null,
-  "amenities": array of strings,
-  "conversationalReply": "A warm, natural 1-2 sentence response to the traveler"
+  "amenities": array of strings
 }`;
           const jsonResponse = await executeAIRequest(extractPrompt, true);
           const parsed = JSON.parse(jsonResponse);
@@ -664,56 +717,111 @@ Return STRICT JSON with these exact keys:
           if (parsed.adults) state.adults = parsed.adults;
           if (parsed.rooms) state.rooms = parsed.rooms;
           if (parsed.budget) state.budget = parsed.budget;
-          if (parsed.amenities && parsed.amenities.length) state.amenitiesRequired = parsed.amenities;
-
-          appendChatMessage('ai', parsed.conversationalReply || `Got it! Preparing your custom vacation in ${state.destination || 'Bengal'}...`);
-
-        } catch (err) {
-          console.warn("AI service fallback activated:", err);
+          if (parsed.amenities && parsed.amenities.length) state.amenitiesRequired = Array.from(new Set([...state.amenitiesRequired, ...parsed.amenities]));
+        } catch(e) {
           localFallbackExtract(text);
-          appendChatMessage('ai', `I've mapped your request for **${state.destination || 'Dooars'}**! Analyzing verified properties now...`);
         }
       } else {
         localFallbackExtract(text);
-        appendChatMessage('ai', `I have your request for **${state.destination || 'Dooars'}**! Preparing verified options now...`);
       }
 
-      if (btn) btn.innerText = "Plan Trip";
+      if (!state.rooms && state.adults) {
+        state.rooms = state.adults > 2 ? 2 : 1;
+      }
 
-      // Set default fallbacks if missing
-      if (!state.destination) state.destination = 'Dooars';
-      if (!state.durationNights) state.durationNights = 3;
-      if (!state.adults) state.adults = 4;
-      if (!state.rooms) state.rooms = (state.adults > 2 ? 2 : 1);
-      if (!state.budget) state.budget = 25000;
+      updateLiveBadges();
 
-      setTimeout(startPlanningPipeline, 400);
+      // SMART MISSING INFO INTERROGATOR LOOP
+      const missing = [];
+      if (!state.destination) missing.push('destination');
+      if (!state.durationNights) missing.push('duration');
+      if (!state.adults) missing.push('guests');
+      if (!state.budget) missing.push('budget');
+
+      if (btn) btn.innerText = "Send";
+
+      if (missing.length > 0) {
+        askNextFollowUp(missing);
+      } else {
+        // ALL INFO COLLECTED!
+        appendChatMessage('ai', `🎉 Perfect! I now have all your details:
+• **Destination:** ${state.destination}
+• **Duration:** ${state.durationNights + 1} Days (${state.durationNights} Nights)
+• **Party:** ${state.adults} Guests (${state.rooms} Rooms)
+• **Budget:** ₹${state.budget.toLocaleString()}
+
+Searching verified resort inventory and crafting your day-by-day plan now...`);
+        
+        setTimeout(startPlanningPipeline, 800);
+      }
+    }
+
+    function askNextFollowUp(missingList) {
+      const nextField = missingList[0];
+
+      if (nextField === 'destination') {
+        appendChatMessage('ai', `Sounds wonderful! Which destination in West Bengal would you like to visit?`);
+        showQuickReplies([
+          { label: '🌲 Dooars / Lataguri', value: 'I want to visit Dooars Lataguri' },
+          { label: '🌊 Mandarmani Beach', value: 'I want to go to Mandarmani' },
+          { label: '🏔️ Darjeeling Hills', value: 'Let us go to Darjeeling' },
+          { label: '🎨 Shantiniketan', value: 'Planning for Shantiniketan' }
+        ]);
+      } 
+      else if (nextField === 'duration') {
+        appendChatMessage('ai', `Got it, **${state.destination}**! How many days or nights are you planning this trip for?`);
+        showQuickReplies([
+          { label: '⚡ 3 Days / 2 Nights', value: '3 days 2 nights' },
+          { label: '🌟 4 Days / 3 Nights', value: '4 days 3 nights' },
+          { label: '🏖️ 5 Days / 4 Nights', value: '5 days 4 nights' }
+        ]);
+      } 
+      else if (nextField === 'guests') {
+        appendChatMessage('ai', `How many adults and children will be traveling, and how many rooms do you need?`);
+        showQuickReplies([
+          { label: '👫 Couple (2 Adults, 1 Room)', value: '2 adults, 1 room' },
+          { label: '👨‍👩‍👧‍👦 Family of 4 (2 Rooms)', value: 'Family of 4, 2 rooms' },
+          { label: '👥 Group of 6 (3 Rooms)', value: '6 adults, 3 rooms' }
+        ]);
+      } 
+      else if (nextField === 'budget') {
+        appendChatMessage('ai', `What is your approximate total budget (or resort accommodation budget) for this vacation?`);
+        showQuickReplies([
+          { label: '🪙 ₹15,000 (Budget)', value: 'Our budget is ₹15,000' },
+          { label: '💳 ₹25,000 (Standard)', value: 'Around ₹25,000 budget' },
+          { label: '💎 ₹40,000 (Premium/Luxury)', value: 'Budget is around ₹40,000' }
+        ]);
+      }
     }
 
     function localFallbackExtract(raw) {
       const t = raw.toLowerCase();
 
+      // Destination
       if (t.includes('dooars') || t.includes('lataguri') || t.includes('murti') || t.includes('gorumara')) {
         state.destination = 'Dooars';
         if (t.includes('lataguri')) state.preferredArea = 'Lataguri';
         if (t.includes('murti')) state.preferredArea = 'Murti';
       } else if (t.includes('mandarmani')) {
         state.destination = 'Mandarmani';
-      } else if (t.includes('shantiniketan')) {
+      } else if (t.includes('shantiniketan') || t.includes('bolpur')) {
         state.destination = 'Shantiniketan';
       } else if (t.includes('darjeeling')) {
         state.destination = 'Darjeeling';
       }
 
+      // Duration
       const dayMatch = t.match(/(\d+)\s*(days?|nights?)/);
       if (dayMatch) {
         const num = parseInt(dayMatch[1]);
         state.durationNights = t.includes('day') && num > 1 ? num - 1 : num;
       }
 
+      // Rooms
       const roomMatch = t.match(/(\d+)\s*(rooms?|room)/);
       if (roomMatch) state.rooms = parseInt(roomMatch[1]);
 
+      // Adults
       const adultMatch = t.match(/(\d+)\s*(adults?|persons?|people|members?|guests?)/);
       if (adultMatch) {
         state.adults = parseInt(adultMatch[1]);
@@ -725,11 +833,15 @@ Return STRICT JSON with these exact keys:
         state.tripType = 'couple';
       }
 
+      // Budget (e.g., 25000, 25k, ₹30,000, 15000rs)
       const budgetMatch = t.match(/(?:₹|rs\.?|inr)?\s*(\d{1,3}(?:,\d{3})*|\d+)\s*(k|thousand|lakh)?/i);
-      if (budgetMatch && (t.includes('budget') || t.includes('k') || t.includes('₹') || t.includes('under') || t.includes('around') || t.includes('rs'))) {
+      if (budgetMatch && (t.includes('budget') || t.includes('k') || t.includes('₹') || t.includes('under') || t.includes('around') || t.includes('rs') || t.includes('approx') || t.includes('spend'))) {
         let val = parseFloat(budgetMatch[1].replace(/,/g, ''));
         if (budgetMatch[2]?.toLowerCase() === 'k' || t.includes(`${val}k`)) val *= 1000;
         if (val >= 2000) state.budget = val;
+      } else if (budgetMatch && !state.budget) {
+        let directVal = parseFloat(budgetMatch[1].replace(/,/g, ''));
+        if (directVal >= 3000) state.budget = directVal;
       }
 
       if (t.includes('pool') || t.includes('swimming')) {
@@ -742,10 +854,10 @@ Return STRICT JSON with these exact keys:
       document.getElementById('loading-view').classList.remove('hidden');
 
       const pipelineSteps = [
-        'Analyzing extracted trip parameters & travel dates',
+        'Analyzing complete trip parameters & preferences',
         `Querying verified resort inventory in ${state.destination || 'West Bengal'}`,
-        'Evaluating room layouts and capacity rules',
-        'Running recommendation scoring algorithm',
+        'Evaluating room layouts, capacity & season pricing',
+        'Running recommendation scoring engine',
         'Generating customized daily itinerary & transfer timings',
         'Finalizing your vacation plan...'
       ];
@@ -898,7 +1010,7 @@ Return STRICT JSON:
       for (let d = 2; d < daysCount; d++) {
         items.push({
           day: d,
-          title: `Local Reserve Safari & River Excursion`,
+          title: `Local Reserve Safari & Excursion`,
           events: [
             { time: '06:00 AM', title: 'Morning Safari / Sightseeing', desc: 'Guided tour of prominent regional attractions and reserves.' },
             { time: '09:00 AM', title: 'Breakfast Buffet', desc: `Fresh breakfast at ${resort.name}.` },
@@ -1069,7 +1181,7 @@ Return STRICT JSON:
       const container = document.getElementById('home-destinations-grid');
       if (!container) return;
       container.innerHTML = dests.map(d => `
-        <div class="group relative rounded-2xl overflow-hidden h-52 cursor-pointer shadow-md" onclick="fillPreset('Plan a 4-day trip to ${d.name} for family, 2 rooms, budget ₹25,000')">
+        <div class="group relative rounded-2xl overflow-hidden h-52 cursor-pointer shadow-md" onclick="fillPreset('I want to plan a vacation to ${d.name}')">
           <img src="${d.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="${d.name}">
           <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-end text-white">
             <span class="text-xs font-semibold uppercase tracking-wider text-emerald-300">${d.tagline.split(',')[0]}</span>
@@ -1084,6 +1196,7 @@ Return STRICT JSON:
       renderHomeDestinations();
       window.MMV.updateNavBadges();
       updateApiKeyButtonState();
+      updateLiveBadges();
 
       const input = document.getElementById('user-input');
       if (input) {
