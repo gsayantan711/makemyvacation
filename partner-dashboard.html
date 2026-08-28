@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partner Portal — MakeMyVacation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style> body { font-family: 'Plus Jakarta Sans', sans-serif; } </style>
+</head>
+<body class="bg-stone-50 text-stone-900 min-h-screen flex flex-col justify-between">
+
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-stone-200">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-extrabold text-sm">MV</div>
+        <span class="font-extrabold text-xl tracking-tight text-stone-900">MakeMy<span class="text-emerald-700">Vacation</span> Partner</span>
+      </a>
+      <a href="index.html" class="text-xs sm:text-sm font-semibold text-stone-700 hover:text-emerald-700">
+        ← Back to Guest Site
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8 space-y-8">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-extrabold text-stone-900">Partner & Admin Portal</h1>
+        <p class="text-stone-500 text-sm mt-1">Manage resort inventory, view guest inquiries, and listing details</p>
+      </div>
+      <button onclick="toggleAddModal()" class="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition">
+        + Add New Resort Listing
+      </button>
+    </div>
+
+    <div class="bg-white border border-stone-200 rounded-3xl p-6 shadow-sm space-y-4">
+      <h2 class="text-xl font-bold text-stone-900">Recent Guest Booking Enquiries</h2>
+      <div id="enquiries-table" class="overflow-x-auto text-sm"></div>
+    </div>
+
+    <div class="bg-white border border-stone-200 rounded-3xl p-6 shadow-sm space-y-4">
+      <h2 class="text-xl font-bold text-stone-900">Active Resort Properties</h2>
+      <div id="resorts-table" class="overflow-x-auto text-sm"></div>
+    </div>
+  </main>
+
+  <div id="add-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+        <h3 class="font-bold text-lg text-stone-900">Add New Resort Property</h3>
+        <button onclick="toggleAddModal()" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="add-resort-form" onsubmit="submitNewResort(event)" class="space-y-3 text-xs sm:text-sm">
+        <div>
+          <label class="block font-semibold text-stone-600 mb-1">Resort Name</label>
+          <input type="text" id="prop-name" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" placeholder="e.g. Riverbank Eco Haven">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-stone-600 mb-1">Destination</label>
+            <select id="prop-dest" class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700">
+              <option value="Dooars">Dooars</option>
+              <option value="Mandarmani">Mandarmani</option>
+              <option value="Shantiniketan">Shantiniketan</option>
+              <option value="Darjeeling">Darjeeling</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-stone-600 mb-1">Area / Village</label>
+            <input type="text" id="prop-area" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" placeholder="e.g. Murti">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-stone-600 mb-1">Base Price / Night (₹)</label>
+            <input type="number" id="prop-price" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" placeholder="3800">
+          </div>
+          <div>
+            <label class="block font-semibold text-stone-600 mb-1">Room Category</label>
+            <input type="text" id="prop-room" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" placeholder="e.g. Deluxe Cottage">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-stone-600 mb-1">Image URL</label>
+          <input type="url" id="prop-img" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" value="https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800">
+        </div>
+        <div>
+          <label class="block font-semibold text-stone-600 mb-1">Amenities (Comma separated)</label>
+          <input type="text" id="prop-amenities" class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" value="Swimming Pool, Free Breakfast, Wi-Fi, Bonfire">
+        </div>
+        <button type="submit" class="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-md transition">
+          Save Property to Database
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <footer class="border-t border-stone-200 bg-white py-6 text-center text-xs text-stone-400">
+    © MakeMyVacation. AI-Powered Vacation Planning & Resort Discovery Platform.
+  </footer>
+
+  <script src="js/store.js"></script>
+  <script>
+    function renderDashboard() {
+      // Enquiries
+      const enqs = window.MMV.getEnquiries();
+      const enqContainer = document.getElementById('enquiries-table');
+      if (enqs.length === 0) {
+        enqContainer.innerHTML = `<p class="text-xs text-stone-400 py-4 italic">No guest enquiries received yet. Try requesting a booking on the guest planner view!</p>`;
+      } else {
+        enqContainer.innerHTML = `
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-stone-200 text-stone-500 text-xs">
+                <th class="py-2">Time</th>
+                <th class="py-2">Guest</th>
+                <th class="py-2">Phone</th>
+                <th class="py-2">Resort</th>
+                <th class="py-2">Est. Cost</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+              ${enqs.map(e => `
+                <tr>
+                  <td class="py-3 text-xs text-stone-500">${e.timestamp}</td>
+                  <td class="py-3 font-semibold text-stone-900">${e.name}</td>
+                  <td class="py-3 text-stone-600">${e.phone}</td>
+                  <td class="py-3 font-medium text-emerald-800">${e.resortName}</td>
+                  <td class="py-3 font-bold text-stone-900">₹${e.totalCost.toLocaleString()}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+
+      // Resorts
+      const resorts = window.MMV.getResorts();
+      document.getElementById('resorts-table').innerHTML = `
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-stone-200 text-stone-500 text-xs">
+              <th class="py-2">Property</th>
+              <th class="py-2">Destination</th>
+              <th class="py-2">Room Type</th>
+              <th class="py-2">Base Price</th>
+              <th class="py-2 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-stone-100">
+            ${resorts.map(r => `
+              <tr>
+                <td class="py-3 font-semibold text-stone-900 flex items-center gap-2">
+                  <img src="${r.image}" class="w-8 h-8 rounded-lg object-cover" alt="">
+                  <span>${r.name}</span>
+                </td>
+                <td class="py-3 text-stone-600">${r.destination} (${r.area})</td>
+                <td class="py-3 text-stone-600">${r.roomName}</td>
+                <td class="py-3 font-bold text-stone-900">₹${r.pricePerNight.toLocaleString()}/nt</td>
+                <td class="py-3 text-right">
+                  <button onclick="deleteResort('${r.id}')" class="text-xs text-red-600 hover:underline font-semibold">Delete</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function toggleAddModal() {
+      document.getElementById('add-modal').classList.toggle('hidden');
+    }
+
+    function submitNewResort(e) {
+      e.preventDefault();
+      window.MMV.addResort({
+        name: document.getElementById('prop-name').value,
+        destination: document.getElementById('prop-dest').value,
+        area: document.getElementById('prop-area').value,
+        tier: 'midscale',
+        rating: 4.5,
+        reviewCount: 1,
+        image: document.getElementById('prop-img').value,
+        amenities: document.getElementById('prop-amenities').value.split(',').map(s => s.trim()),
+        roomName: document.getElementById('prop-room').value,
+        pricePerNight: parseFloat(document.getElementById('prop-price').value),
+        isFamily: true,
+        isCouple: true,
+        isPet: false,
+        pros: ['Newly added certified property'],
+        cons: ['Limited historical reviews']
+      });
+      toggleAddModal();
+      renderDashboard();
+    }
+
+    function deleteResort(id) {
+      if (confirm('Delete this resort listing?')) {
+        window.MMV.deleteResort(id);
+        renderDashboard();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', renderDashboard);
+  </script>
+</body>
+</html>

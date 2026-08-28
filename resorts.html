@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resorts Directory — MakeMyVacation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style> body { font-family: 'Plus Jakarta Sans', sans-serif; } </style>
+</head>
+<body class="bg-stone-50 text-stone-900 min-h-screen flex flex-col justify-between">
+
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-stone-200">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-extrabold text-sm">MV</div>
+        <span class="font-extrabold text-xl tracking-tight text-stone-900">MakeMy<span class="text-emerald-700">Vacation</span></span>
+      </a>
+      <nav class="flex items-center gap-6 text-sm font-semibold text-stone-600">
+        <a href="destinations.html" class="hover:text-emerald-700 transition">Destinations</a>
+        <a href="resorts.html" class="text-emerald-700">Explore Resorts</a>
+        <a href="my-trips.html" class="hover:text-emerald-700 transition">My Trips</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8 space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-extrabold text-stone-900">Verified Bengal Resorts</h1>
+        <p class="text-stone-500 text-sm mt-1">Compare pricing, amenities, and reserve with zero middleman fees</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <select id="filter-destination" onchange="filterResorts()" class="bg-white border border-stone-200 text-sm font-semibold text-stone-700 rounded-xl px-3 py-2 focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+          <option value="all">All Destinations</option>
+          <option value="Dooars">Dooars & Lataguri</option>
+          <option value="Mandarmani">Mandarmani</option>
+          <option value="Shantiniketan">Shantiniketan</option>
+          <option value="Darjeeling">Darjeeling</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="resorts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </main>
+
+  <footer class="border-t border-stone-200 bg-white py-6 text-center text-xs text-stone-400">
+    © MakeMyVacation. AI-Powered Vacation Planning & Resort Discovery Platform.
+  </footer>
+
+  <script src="js/store.js"></script>
+  <script>
+    function renderResorts(list) {
+      const container = document.getElementById('resorts-grid');
+      container.innerHTML = list.map(r => `
+        <div class="bg-white border border-stone-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+          <div>
+            <div class="h-48 relative overflow-hidden">
+              <img src="${r.image}" class="w-full h-full object-cover" alt="${r.name}">
+              <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-bold text-stone-900 shadow-sm">
+                ⭐ ${r.rating} (${r.reviewCount})
+              </div>
+            </div>
+            <div class="p-5 space-y-3">
+              <div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">${r.destination} • ${r.area}</span>
+                <h3 class="font-bold text-lg text-stone-900">${r.name}</h3>
+                <p class="text-xs text-stone-500 mt-0.5">Room Type: ${r.roomName}</p>
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                ${r.amenities.slice(0, 3).map(a => `<span class="text-[10px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded-md font-medium">${a}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+          <div class="p-5 pt-0 border-t border-stone-100 mt-2 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] text-stone-400 block uppercase font-bold">Starting from</span>
+              <span class="font-extrabold text-stone-900 text-base">₹${r.pricePerNight.toLocaleString()}<span class="text-xs font-normal text-stone-500"> / night</span></span>
+            </div>
+            <a href="index.html" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition shadow-sm">
+              Plan Trip →
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterResorts() {
+      const selected = document.getElementById('filter-destination').value;
+      const all = window.MMV.getResorts();
+      if (selected === 'all') {
+        renderResorts(all);
+      } else {
+        renderResorts(all.filter(r => r.destination === selected));
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderResorts(window.MMV.getResorts());
+    });
+  </script>
+</body>
+</html>
