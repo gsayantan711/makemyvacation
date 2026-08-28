@@ -126,8 +126,8 @@ const INITIAL_DESTINATIONS = [
     image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=800',
     bestTime: 'October to May',
     howToReach: 'New Mal Junction / NJP Railway Station, Bagdogra Airport (~2 hrs)',
-    description: 'Dooars is the gateway to Bhutan and North-East India, world-famous for its One-Horned Rhinoceros, tea gardens, and the Murti riverbed.',
-    attractions: ['Gorumara National Park Safari', 'Murti River Pebble Beach', 'Jaldapara Elephant Corridor', 'Samsing & Suntalekhola']
+    description: 'Gateway to North-East India with one-horned rhinoceros and riverside valleys.',
+    attractions: ['Gorumara National Park Safari', 'Murti River Pebble Beach', 'Jaldapara Elephant Corridor']
   },
   {
     id: 'dest-mandarmani',
@@ -137,8 +137,8 @@ const INITIAL_DESTINATIONS = [
     image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800',
     bestTime: 'July to March',
     howToReach: 'Approx 3.5 to 4 hours drive from Kolkata via NH16 and NH116B',
-    description: 'A tranquil beach resort village known for red crabs, wide drivable beaches, and calm coastal waves of the Bay of Bengal.',
-    attractions: ['Mandarmani Main Beach', 'Red Crab Delta', 'Digha Mohona Fish Market', 'Tajpur Beach Trails']
+    description: 'Tranquil beach resort village famous for red crabs and calm waves.',
+    attractions: ['Mandarmani Main Beach', 'Red Crab Delta', 'Digha Mohona']
   },
   {
     id: 'dest-shantiniketan',
@@ -147,9 +147,9 @@ const INITIAL_DESTINATIONS = [
     tagline: 'Tagore heritage, terracotta art, and Baul songs',
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800',
     bestTime: 'September to March',
-    howToReach: 'Bolpur Shantiniketan Railway Station (2.5 hrs train from Howrah/Sealdah)',
-    description: 'The Nobel Laureate Rabindranath Tagore’s university town, offering peace, terracotta handicrafts, and cultural melas.',
-    attractions: ['Visva-Bharati Ashram', 'Khowai Shonajhuri Haat', 'Kopai River Banks', 'Amar Kutir Handicraft Centre']
+    howToReach: 'Bolpur Shantiniketan Railway Station (2.5 hrs train from Howrah)',
+    description: 'Nobel laureate Rabindranath Tagore university town with cultural crafts.',
+    attractions: ['Visva-Bharati Ashram', 'Khowai Sonajhuri Haat', 'Kopai River']
   },
   {
     id: 'dest-darjeeling',
@@ -158,13 +158,32 @@ const INITIAL_DESTINATIONS = [
     tagline: 'Queen of Hills, Himalayan Toy Train, and Tea Gardens',
     image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=800',
     bestTime: 'March to June, September to December',
-    howToReach: 'Bagdogra Airport / NJP Station (~3 hrs scenic mountain drive)',
-    description: 'Nestled in the lesser Himalayas, offering world-renowned Darjeeling tea, UNESCO heritage Toy Train, and views of Mount Kanchenjunga.',
-    attractions: ['Tiger Hill Sunrise', 'Batasia Loop & Toy Train', 'Happy Valley Tea Estate', 'Himalayan Mountaineering Institute']
+    howToReach: 'Bagdogra Airport / NJP Station (~3 hrs mountain drive)',
+    description: 'Lesser Himalayas with world-famous Darjeeling tea and Mount Kanchenjunga views.',
+    attractions: ['Tiger Hill Sunrise', 'Batasia Loop & Toy Train', 'Happy Valley Tea Estate']
   }
 ];
 
-// Initialize Storage
+// Initial Demo Enquiries
+const INITIAL_ENQUIRIES = [
+  {
+    id: 'enq_1001',
+    name: 'Debashis Dasgupta',
+    phone: '+91 98301 23456',
+    email: 'debashis.dasgupta@gmail.com',
+    resortName: 'Green Valley Forest Resort',
+    destination: 'Dooars',
+    durationNights: 3,
+    guestsCount: 4,
+    roomsCount: 2,
+    totalCost: 24800,
+    timestamp: '28/08/2026, 04:30 PM',
+    status: 'Pending',
+    partnerNotes: '',
+    updatedPackage: null
+  }
+];
+
 if (!localStorage.getItem('mmv_resorts')) {
   localStorage.setItem('mmv_resorts', JSON.stringify(INITIAL_RESORTS));
 }
@@ -175,10 +194,10 @@ if (!localStorage.getItem('mmv_saved_trips')) {
   localStorage.setItem('mmv_saved_trips', JSON.stringify([]));
 }
 if (!localStorage.getItem('mmv_enquiries')) {
-  localStorage.setItem('mmv_enquiries', JSON.stringify([]));
+  localStorage.setItem('mmv_enquiries', JSON.stringify(INITIAL_ENQUIRIES));
 }
 
-// Global Store Helper APIs
+// Global Store Helper
 window.MMV = {
   getResorts: () => JSON.parse(localStorage.getItem('mmv_resorts') || '[]'),
   getDestinations: () => JSON.parse(localStorage.getItem('mmv_destinations') || '[]'),
@@ -211,7 +230,24 @@ window.MMV = {
 
   addEnquiry: (enquiry) => {
     const list = window.MMV.getEnquiries();
-    list.unshift({ ...enquiry, id: 'enq_' + Date.now(), timestamp: new Date().toLocaleString(), status: 'Pending' });
+    list.unshift({
+      ...enquiry,
+      id: 'enq_' + Date.now(),
+      timestamp: new Date().toLocaleString(),
+      status: 'Pending',
+      partnerNotes: '',
+      updatedPackage: null
+    });
+    localStorage.setItem('mmv_enquiries', JSON.stringify(list));
+  },
+
+  updateEnquiry: (id, updatedFields) => {
+    const list = window.MMV.getEnquiries().map(item => {
+      if (item.id === id) {
+        return { ...item, ...updatedFields };
+      }
+      return item;
+    });
     localStorage.setItem('mmv_enquiries', JSON.stringify(list));
   },
 
@@ -224,7 +260,3 @@ window.MMV = {
     }
   }
 };
-
-window.addEventListener('DOMContentLoaded', () => {
-  window.MMV.updateNavBadges();
-});
