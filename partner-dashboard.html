@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Partner Portal — MakeMyVacation</title>
+  <title>Resort Partner Portal — MakeMyVacation</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,48 +14,103 @@
 
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-stone-200">
     <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-2">
-        <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-extrabold text-sm">MV</div>
-        <span class="font-extrabold text-xl tracking-tight text-stone-900">MakeMy<span class="text-emerald-700">Vacation</span> Partner</span>
-      </a>
-      <a href="index.html" class="text-xs sm:text-sm font-semibold text-stone-700 hover:text-emerald-700">
-        ← Back to Guest Site
-      </a>
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-extrabold text-sm shadow-md">
+          RP
+        </div>
+        <div>
+          <span class="font-extrabold text-lg tracking-tight text-stone-900">MakeMyVacation <span class="text-emerald-700">Partner</span></span>
+          <span class="block text-[10px] text-stone-400 -mt-1 font-semibold uppercase">Resort Concierge Desk</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 text-xs font-semibold">
+        <a href="admin-portal.html" class="text-stone-500 hover:text-stone-900">Admin Center ↗</a>
+        <a href="index.html" class="px-3.5 py-2 bg-stone-900 text-white rounded-xl hover:bg-stone-800 transition">← Guest View</a>
+      </div>
     </div>
   </header>
 
   <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8 space-y-8">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-extrabold text-stone-900">Partner & Admin Portal</h1>
-        <p class="text-stone-500 text-sm mt-1">Manage resort inventory, view guest inquiries, and listing details</p>
+        <h1 class="text-3xl font-extrabold text-stone-900">Partner Concierge Inbox</h1>
+        <p class="text-stone-500 text-sm mt-1">Review guest inquiries, tailor customized quotes, and reply with custom inclusions</p>
       </div>
-      <button onclick="toggleAddModal()" class="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition">
-        + Add New Resort Listing
+      <button onclick="toggleAddModal()" class="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition cursor-pointer">
+        + Add New Room Inventory
       </button>
     </div>
 
     <div class="bg-white border border-stone-200 rounded-3xl p-6 shadow-sm space-y-4">
-      <h2 class="text-xl font-bold text-stone-900">Recent Guest Booking Enquiries</h2>
-      <div id="enquiries-table" class="overflow-x-auto text-sm"></div>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold text-stone-900">Live Guest Bookings & Inquiries</h2>
+        <span class="text-xs text-stone-400">Click <strong>"Customize & Reply"</strong> to alter rates or offer discounts</span>
+      </div>
+      <div id="enquiries-queue" class="overflow-x-auto text-sm"></div>
     </div>
 
     <div class="bg-white border border-stone-200 rounded-3xl p-6 shadow-sm space-y-4">
-      <h2 class="text-xl font-bold text-stone-900">Active Resort Properties</h2>
-      <div id="resorts-table" class="overflow-x-auto text-sm"></div>
+      <h2 class="text-lg font-bold text-stone-900">Your Property List</h2>
+      <div id="partner-resorts-table" class="overflow-x-auto text-sm"></div>
     </div>
   </main>
+
+  <div id="reply-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+        <div>
+          <h3 class="font-bold text-lg text-stone-900">Modify & Send Customer Package</h3>
+          <p id="modal-reply-guest" class="text-xs text-emerald-700 font-semibold"></p>
+        </div>
+        <button onclick="closeReplyModal()" class="text-stone-400 hover:text-stone-600 text-xl font-bold cursor-pointer">&times;</button>
+      </div>
+
+      <form id="reply-form" onsubmit="submitPartnerReply(event)" class="space-y-4 text-xs sm:text-sm">
+        <input type="hidden" id="reply-enq-id">
+
+        <div class="p-3 bg-stone-50 rounded-2xl border border-stone-200 space-y-1">
+          <p class="text-xs text-stone-500"><strong>Requested Stay:</strong> <span id="reply-stay-details"></span></p>
+          <p class="text-xs text-stone-500"><strong>Original AI Estimate:</strong> ₹<span id="reply-orig-price" class="font-bold text-stone-900"></span></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Updated Package Cost (₹)</label>
+            <input type="number" id="reply-custom-price" required class="w-full p-2.5 border border-stone-300 rounded-xl focus:ring-2 focus:ring-emerald-700 text-stone-900 font-bold">
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Room Upgrade / Type</label>
+            <input type="text" id="reply-room-type" required class="w-full p-2.5 border border-stone-300 rounded-xl focus:ring-2 focus:ring-emerald-700 text-stone-900" placeholder="e.g. Deluxe Forest Cottage">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Special Perks & Inclusions Offered</label>
+          <input type="text" id="reply-perks" class="w-full p-2.5 border border-stone-300 rounded-xl focus:ring-2 focus:ring-emerald-700 text-stone-900" placeholder="e.g. Free Breakfast Buffet + 10% Off Wildlife Safari + Welcome Drink">
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Personalized Message / Response to Customer</label>
+          <textarea id="reply-message" rows="3" required class="w-full p-2.5 border border-stone-300 rounded-xl focus:ring-2 focus:ring-emerald-700 text-stone-900" placeholder="Hi Debashis, we are pleased to confirm your cottage availability and have added complimentary safari escorts for your group..."></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-md transition cursor-pointer">
+          Dispatch Updated Offer to Customer 🚀
+        </button>
+      </form>
+    </div>
+  </div>
 
   <div id="add-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-stone-100 pb-3">
-        <h3 class="font-bold text-lg text-stone-900">Add New Resort Property</h3>
-        <button onclick="toggleAddModal()" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
+        <h3 class="font-bold text-lg text-stone-900">Add New Inventory Listing</h3>
+        <button onclick="toggleAddModal()" class="text-stone-400 hover:text-stone-600 text-xl font-bold cursor-pointer">&times;</button>
       </div>
-      <form id="add-resort-form" onsubmit="submitNewResort(event)" class="space-y-3 text-xs sm:text-sm">
+      <form onsubmit="submitNewResort(event)" class="space-y-3 text-xs sm:text-sm">
         <div>
           <label class="block font-semibold text-stone-600 mb-1">Resort Name</label>
-          <input type="text" id="prop-name" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" placeholder="e.g. Riverbank Eco Haven">
+          <input type="text" id="prop-name" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" placeholder="e.g. Riverbank Nature Camp">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
@@ -68,67 +123,85 @@
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-stone-600 mb-1">Area / Village</label>
+            <label class="block font-semibold text-stone-600 mb-1">Area</label>
             <input type="text" id="prop-area" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" placeholder="e.g. Murti">
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block font-semibold text-stone-600 mb-1">Base Price / Night (₹)</label>
-            <input type="number" id="prop-price" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" placeholder="3800">
+            <input type="number" id="prop-price" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" placeholder="3600">
           </div>
           <div>
-            <label class="block font-semibold text-stone-600 mb-1">Room Category</label>
-            <input type="text" id="prop-room" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" placeholder="e.g. Deluxe Cottage">
+            <label class="block font-semibold text-stone-600 mb-1">Room Type</label>
+            <input type="text" id="prop-room" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" placeholder="Deluxe Cottage">
           </div>
         </div>
         <div>
           <label class="block font-semibold text-stone-600 mb-1">Image URL</label>
           <input type="url" id="prop-img" required class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" value="https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800">
         </div>
-        <div>
-          <label class="block font-semibold text-stone-600 mb-1">Amenities (Comma separated)</label>
-          <input type="text" id="prop-amenities" class="w-full p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700" value="Swimming Pool, Free Breakfast, Wi-Fi, Bonfire">
-        </div>
-        <button type="submit" class="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-md transition">
-          Save Property to Database
+        <button type="submit" class="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-md transition cursor-pointer">
+          Save Listing
         </button>
       </form>
     </div>
   </div>
 
   <footer class="border-t border-stone-200 bg-white py-6 text-center text-xs text-stone-400">
-    © MakeMyVacation. AI-Powered Vacation Planning & Resort Discovery Platform.
+    © MakeMyVacation Partner Concierge System.
   </footer>
 
   <script src="js/store.js"></script>
   <script>
-    function renderDashboard() {
-      // Enquiries
+    function renderPartnerDashboard() {
+      // 1. Enquiries Table
       const enqs = window.MMV.getEnquiries();
-      const enqContainer = document.getElementById('enquiries-table');
+      const container = document.getElementById('enquiries-queue');
+
       if (enqs.length === 0) {
-        enqContainer.innerHTML = `<p class="text-xs text-stone-400 py-4 italic">No guest enquiries received yet. Try requesting a booking on the guest planner view!</p>`;
+        container.innerHTML = `<p class="text-xs text-stone-400 py-6 text-center italic">No customer inquiries waiting in queue.</p>`;
       } else {
-        enqContainer.innerHTML = `
+        container.innerHTML = `
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="border-b border-stone-200 text-stone-500 text-xs">
-                <th class="py-2">Time</th>
-                <th class="py-2">Guest</th>
-                <th class="py-2">Phone</th>
-                <th class="py-2">Resort</th>
-                <th class="py-2">Est. Cost</th>
+              <tr class="border-b border-stone-200 text-stone-500 text-xs uppercase tracking-wider">
+                <th class="py-3 px-2">Time</th>
+                <th class="py-3 px-2">Customer</th>
+                <th class="py-3 px-2">Resort / Area</th>
+                <th class="py-3 px-2">Current Quote</th>
+                <th class="py-3 px-2">Status</th>
+                <th class="py-3 px-2 text-right">Action</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-stone-100">
               ${enqs.map(e => `
-                <tr>
-                  <td class="py-3 text-xs text-stone-500">${e.timestamp}</td>
-                  <td class="py-3 font-semibold text-stone-900">${e.name}</td>
-                  <td class="py-3 text-stone-600">${e.phone}</td>
-                  <td class="py-3 font-medium text-emerald-800">${e.resortName}</td>
-                  <td class="py-3 font-bold text-stone-900">₹${e.totalCost.toLocaleString()}</td>
+                <tr class="hover:bg-stone-50/80 transition">
+                  <td class="py-3.5 px-2 text-xs text-stone-500">${e.timestamp}</td>
+                  <td class="py-3.5 px-2">
+                    <p class="font-bold text-stone-900">${e.name}</p>
+                    <p class="text-xs text-stone-500">${e.phone} • ${e.email}</p>
+                  </td>
+                  <td class="py-3.5 px-2">
+                    <p class="font-semibold text-emerald-800">${e.resortName}</p>
+                    <p class="text-xs text-stone-500">${e.durationNights || 3} Nights</p>
+                  </td>
+                  <td class="py-3.5 px-2">
+                    <span class="font-bold text-stone-900">₹${(e.updatedPackage ? e.updatedPackage.customPrice : e.totalCost).toLocaleString()}</span>
+                    ${e.updatedPackage ? `<span class="block text-[10px] text-emerald-700 font-bold">Custom Offer Sent</span>` : ''}
+                  </td>
+                  <td class="py-3.5 px-2">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-bold ${
+                      e.status === 'Offer Sent' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                    }">
+                      ${e.status}
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-2 text-right">
+                    <button onclick="openReplyModal('${e.id}')" class="px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-bold transition shadow-sm cursor-pointer">
+                      ${e.status === 'Offer Sent' ? 'Edit Offer ✏️' : 'Customize & Reply 💬'}
+                    </button>
+                  </td>
                 </tr>
               `).join('')}
             </tbody>
@@ -136,17 +209,17 @@
         `;
       }
 
-      // Resorts
+      // 2. Inventory Table
       const resorts = window.MMV.getResorts();
-      document.getElementById('resorts-table').innerHTML = `
+      document.getElementById('partner-resorts-table').innerHTML = `
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="border-b border-stone-200 text-stone-500 text-xs">
+            <tr class="border-b border-stone-200 text-stone-500 text-xs uppercase tracking-wider">
               <th class="py-2">Property</th>
               <th class="py-2">Destination</th>
-              <th class="py-2">Room Type</th>
-              <th class="py-2">Base Price</th>
-              <th class="py-2 text-right">Actions</th>
+              <th class="py-2">Base Room</th>
+              <th class="py-2">Nightly Rate</th>
+              <th class="py-2 text-right">Action</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-stone-100">
@@ -158,15 +231,67 @@
                 </td>
                 <td class="py-3 text-stone-600">${r.destination} (${r.area})</td>
                 <td class="py-3 text-stone-600">${r.roomName}</td>
-                <td class="py-3 font-bold text-stone-900">₹${r.pricePerNight.toLocaleString()}/nt</td>
+                <td class="py-3 font-bold text-stone-900">₹${r.pricePerNight.toLocaleString()}</td>
                 <td class="py-3 text-right">
-                  <button onclick="deleteResort('${r.id}')" class="text-xs text-red-600 hover:underline font-semibold">Delete</button>
+                  <button onclick="deleteListing('${r.id}')" class="text-xs text-red-600 hover:underline font-semibold">Delete</button>
                 </td>
               </tr>
             `).join('')}
           </tbody>
         </table>
       `;
+    }
+
+    function openReplyModal(id) {
+      const enq = window.MMV.getEnquiries().find(e => e.id === id);
+      if (!enq) return;
+
+      document.getElementById('reply-enq-id').value = enq.id;
+      document.getElementById('modal-reply-guest').innerText = `Customer: ${enq.name} (${enq.phone})`;
+      document.getElementById('reply-stay-details').innerText = `${enq.resortName} • ${enq.durationNights || 3} Nights`;
+      document.getElementById('reply-orig-price').innerText = enq.totalCost.toLocaleString();
+
+      if (enq.updatedPackage) {
+        document.getElementById('reply-custom-price').value = enq.updatedPackage.customPrice;
+        document.getElementById('reply-room-type').value = enq.updatedPackage.roomType;
+        document.getElementById('reply-perks').value = enq.updatedPackage.perks;
+        document.getElementById('reply-message').value = enq.updatedPackage.message;
+      } else {
+        document.getElementById('reply-custom-price').value = enq.totalCost;
+        document.getElementById('reply-room-type').value = 'Deluxe Forest Cottage (Upgraded)';
+        document.getElementById('reply-perks').value = 'Free Breakfast Buffet + 10% Off Jeep Safari + Evening Bonfire';
+        document.getElementById('reply-message').value = `Hello ${enq.name}, we are pleased to confirm your group reservation. We have customized your stay package with discounted rates and added complimentary amenities!`;
+      }
+
+      document.getElementById('reply-modal').classList.remove('hidden');
+    }
+
+    function closeReplyModal() {
+      document.getElementById('reply-modal').classList.add('hidden');
+    }
+
+    function submitPartnerReply(e) {
+      e.preventDefault();
+      const id = document.getElementById('reply-enq-id').value;
+      const customPrice = parseFloat(document.getElementById('reply-custom-price').value);
+      const roomType = document.getElementById('reply-room-type').value;
+      const perks = document.getElementById('reply-perks').value;
+      const message = document.getElementById('reply-message').value;
+
+      window.MMV.updateEnquiry(id, {
+        status: 'Offer Sent',
+        updatedPackage: {
+          customPrice,
+          roomType,
+          perks,
+          message,
+          repliedAt: new Date().toLocaleString()
+        }
+      });
+
+      closeReplyModal();
+      renderPartnerDashboard();
+      alert(`🎉 Updated package quote of ₹${customPrice.toLocaleString()} dispatched to customer!`);
     }
 
     function toggleAddModal() {
@@ -180,30 +305,30 @@
         destination: document.getElementById('prop-dest').value,
         area: document.getElementById('prop-area').value,
         tier: 'midscale',
-        rating: 4.5,
+        rating: 4.6,
         reviewCount: 1,
         image: document.getElementById('prop-img').value,
-        amenities: document.getElementById('prop-amenities').value.split(',').map(s => s.trim()),
+        amenities: ['Swimming Pool', 'Complimentary Breakfast', 'Free Wi-Fi'],
         roomName: document.getElementById('prop-room').value,
         pricePerNight: parseFloat(document.getElementById('prop-price').value),
         isFamily: true,
         isCouple: true,
         isPet: false,
-        pros: ['Newly added certified property'],
+        pros: ['Newly listed certified property'],
         cons: ['Limited historical reviews']
       });
       toggleAddModal();
-      renderDashboard();
+      renderPartnerDashboard();
     }
 
-    function deleteResort(id) {
-      if (confirm('Delete this resort listing?')) {
+    function deleteListing(id) {
+      if (confirm('Delete this resort property?')) {
         window.MMV.deleteResort(id);
-        renderDashboard();
+        renderPartnerDashboard();
       }
     }
 
-    document.addEventListener('DOMContentLoaded', renderDashboard);
+    document.addEventListener('DOMContentLoaded', renderPartnerDashboard);
   </script>
 </body>
 </html>
