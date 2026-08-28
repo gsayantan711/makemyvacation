@@ -7,6 +7,8 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -36,10 +38,25 @@
       </nav>
 
       <div class="flex items-center gap-2 sm:gap-3">
-        <button onclick="promptForApiKey()" id="api-key-btn" class="text-xs font-semibold px-3 py-1.5 rounded-xl border border-stone-200 hover:bg-stone-100 text-stone-700 transition flex items-center gap-1.5 cursor-pointer">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span id="api-btn-text">AI Settings</span>
-        </button>
+        <div id="auth-container" class="flex items-center gap-2">
+          <button onclick="openSignInModal()" id="signin-btn" class="text-xs font-semibold px-3 py-2 rounded-xl border border-stone-200 hover:bg-stone-100 text-stone-700 transition flex items-center gap-1.5 cursor-pointer shadow-sm bg-white">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+            </svg>
+            <span>Sign in with Gmail</span>
+          </button>
+
+          <div id="user-profile-bar" class="hidden items-center gap-2">
+            <div onclick="openAccountModal()" class="flex items-center gap-2 bg-stone-100 hover:bg-stone-200 border border-stone-200 py-1 px-2.5 rounded-xl cursor-pointer transition">
+              <img id="user-avatar" src="" alt="Avatar" class="w-6 h-6 rounded-full object-cover border border-emerald-600">
+              <span id="user-name" class="text-xs font-bold text-stone-800 max-w-[100px] truncate">Traveler</span>
+            </div>
+          </div>
+        </div>
+
         <a href="my-trips.html" class="relative text-xs sm:text-sm font-semibold bg-emerald-700 hover:bg-emerald-800 text-white px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
           <span>My Trips</span>
           <span id="saved-trips-count" class="hidden px-1.5 py-0.5 bg-amber-400 text-stone-950 font-bold text-[10px] rounded-full">0</span>
@@ -84,7 +101,7 @@
             </div>
             <div class="bg-white border border-stone-200 rounded-2xl px-4 py-3 text-sm text-stone-800 shadow-sm max-w-[85%] leading-relaxed">
               Hello! I am your AI vacation assistant. Tell me where you'd like to travel:
-              <span class="italic font-medium text-emerald-800 block mt-1">"I want to go to Dooars with my family" or "A romantic trip to Mandarmani"</span>
+              <span class="italic font-medium text-emerald-800 block mt-1">"I want to go to Dooars with my family" or "A romantic weekend in Mandarmani"</span>
             </div>
           </div>
         </div>
@@ -285,6 +302,60 @@
       </div>
     </section>
   </main>
+
+  <div id="signin-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
+      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold text-xs">MV</div>
+          <h3 class="font-bold text-lg text-stone-900">Sign in with Gmail</h3>
+        </div>
+        <button onclick="closeSignInModal()" class="text-stone-400 hover:text-stone-600 text-xl font-bold cursor-pointer">&times;</button>
+      </div>
+
+      <p class="text-xs text-stone-500 leading-relaxed">
+        Sign in to save your custom vacation plans, review booking requests, and access your trips anytime.
+      </p>
+
+      <div id="google-signin-btn-target" class="flex justify-center my-2"></div>
+
+      <div class="border-t border-stone-100 pt-4 space-y-3">
+        <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider block text-center">Or Enter Your Gmail Directly</span>
+        <div class="flex gap-2">
+          <input type="email" id="quick-email-input" placeholder="you@gmail.com" class="w-full text-xs p-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700 outline-none">
+          <button onclick="handleQuickGmailSignIn()" class="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shrink-0 transition cursor-pointer">
+            Sign In
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="account-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+        <h3 class="font-bold text-lg text-stone-900">Your Account Profile</h3>
+        <button onclick="closeAccountModal()" class="text-stone-400 hover:text-stone-600 text-xl font-bold cursor-pointer">&times;</button>
+      </div>
+
+      <div class="flex items-center gap-3 p-3.5 bg-stone-50 rounded-2xl border border-stone-200">
+        <img id="modal-avatar" src="" class="w-12 h-12 rounded-full border border-emerald-600 object-cover">
+        <div class="overflow-hidden">
+          <h4 id="modal-user-name" class="font-bold text-stone-900 text-sm"></h4>
+          <p id="modal-user-email" class="text-xs text-stone-500 truncate"></p>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-3 border-t border-stone-100">
+        <a href="my-trips.html" class="flex-1 text-center py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl transition">
+          View Saved Trips
+        </a>
+        <button onclick="handleSignOut()" class="py-2.5 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs rounded-xl border border-red-200 transition cursor-pointer">
+          Sign Out
+        </button>
+      </div>
+    </div>
+  </div>
 
   <div id="booking-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
@@ -520,63 +591,133 @@
       }
     };
 
-    // 2. INTERNAL AI BACKEND CLIENT
-    function getStoredApiKey() {
-      return localStorage.getItem('mmv_ai_access_token') || '';
+    // ================= 2. GMAIL & GOOGLE AUTH LOGIC =================
+    function getStoredUser() {
+      try {
+        return JSON.parse(localStorage.getItem('mmv_auth_user')) || null;
+      } catch(e) { return null; }
     }
 
-    function promptForApiKey() {
-      const current = getStoredApiKey();
-      const entered = prompt("Enter your AI Access Token / API Key:", current);
-      if (entered !== null) {
-        localStorage.setItem('mmv_ai_access_token', entered.trim());
-        updateApiKeyButtonState();
-        if (entered.trim()) {
-          alert("✅ AI Engine Connected!");
-        } else {
-          alert("Operating with built-in conversational intelligence.");
+    function setStoredUser(user) {
+      if (user) {
+        localStorage.setItem('mmv_auth_user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('mmv_auth_user');
+      }
+      updateAuthUI();
+    }
+
+    function updateAuthUI() {
+      const user = getStoredUser();
+      const signinBtn = document.getElementById('signin-btn');
+      const profileBar = document.getElementById('user-profile-bar');
+      const avatar = document.getElementById('user-avatar');
+      const nameEl = document.getElementById('user-name');
+
+      if (user) {
+        if (signinBtn) signinBtn.classList.add('hidden');
+        if (profileBar) {
+          profileBar.classList.remove('hidden');
+          profileBar.classList.add('flex');
+        }
+        if (avatar) avatar.src = user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=047857&color=fff`;
+        if (nameEl) nameEl.innerText = user.name.split(' ')[0];
+        
+        // Autofill booking forms
+        const bkName = document.getElementById('bk-name');
+        const bkEmail = document.getElementById('bk-email');
+        if (bkName && !bkName.value) bkName.value = user.name;
+        if (bkEmail && !bkEmail.value) bkEmail.value = user.email;
+      } else {
+        if (signinBtn) signinBtn.classList.remove('hidden');
+        if (profileBar) {
+          profileBar.classList.add('hidden');
+          profileBar.classList.remove('flex');
         }
       }
     }
 
-    function updateApiKeyButtonState() {
-      const btnText = document.getElementById('api-btn-text');
-      const key = getStoredApiKey();
-      if (btnText) {
-        btnText.innerText = key ? "AI Connected 🟢" : "AI Settings";
-      }
+    function openSignInModal() {
+      document.getElementById('signin-modal').classList.remove('hidden');
+      initGoogleGIS();
     }
 
-    async function executeAIRequest(prompt, isJson = false) {
-      const apiKey = getStoredApiKey();
-      if (!apiKey) return null;
+    function closeSignInModal() {
+      document.getElementById('signin-modal').classList.add('hidden');
+    }
 
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    function openAccountModal() {
+      const user = getStoredUser();
+      if (!user) return openSignInModal();
 
-      const payload = {
-        contents: [{ parts: [{ text: prompt }] }]
-      };
+      document.getElementById('modal-avatar').src = user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=047857&color=fff`;
+      document.getElementById('modal-user-name').innerText = user.name;
+      document.getElementById('modal-user-email').innerText = user.email;
 
-      if (isJson) {
-        payload.generationConfig = { responseMimeType: "application/json" };
+      document.getElementById('account-modal').classList.remove('hidden');
+    }
+
+    function closeAccountModal() {
+      document.getElementById('account-modal').classList.add('hidden');
+    }
+
+    function handleSignOut() {
+      setStoredUser(null);
+      closeAccountModal();
+      alert('Signed out successfully.');
+    }
+
+    function handleQuickGmailSignIn() {
+      const email = document.getElementById('quick-email-input').value.trim();
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid Gmail address.');
+        return;
       }
+      const rawName = email.split('@')[0].replace(/[._]/g, ' ');
+      const formattedName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+      setStoredUser({
+        name: formattedName,
+        email: email,
+        picture: `https://ui-avatars.com/api/?name=${encodeURIComponent(formattedName)}&background=047857&color=fff`
       });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error?.message || "AI service connection issue");
-      }
-
-      const data = await res.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text;
+      closeSignInModal();
+      appendChatMessage('ai', `Welcome **${formattedName}** (${email})! What vacation would you like to plan today?`);
     }
 
-    // 3. CONVERSATION & SMART REQUIREMENT TRACKER
+    function handleGoogleCredentialResponse(response) {
+      try {
+        const base64Url = response.credential.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+        const profile = JSON.parse(jsonPayload);
+
+        setStoredUser({
+          name: profile.name,
+          email: profile.email,
+          picture: profile.picture
+        });
+        closeSignInModal();
+        appendChatMessage('ai', `Welcome **${profile.name}**! Signed in with ${profile.email}. Where would you like to go?`);
+      } catch (err) {
+        console.error('Google token decode:', err);
+      }
+    }
+
+    function initGoogleGIS() {
+      if (typeof google !== 'undefined' && google.accounts) {
+        google.accounts.id.initialize({
+          client_id: "1234567890-example.apps.googleusercontent.com", // Optional custom client ID
+          callback: handleGoogleCredentialResponse
+        });
+        google.accounts.id.renderButton(
+          document.getElementById("google-signin-btn-target"),
+          { theme: "outline", size: "large", width: 280, text: "continue_with" }
+        );
+      }
+    }
+
+    // ================= 3. CONVERSATION & REQUIREMENT TRACKER =================
     let state = {
       destination: null,
       preferredArea: null,
@@ -675,7 +816,7 @@
       document.getElementById('quick-reply-container').classList.add('hidden');
     }
 
-    async function handleUserSubmit() {
+    function handleUserSubmit() {
       const inputEl = document.getElementById('user-input');
       const text = inputEl.value.trim();
       if (!text) return;
@@ -684,46 +825,7 @@
       inputEl.value = '';
       hideQuickReplies();
 
-      const btn = document.getElementById('plan-btn-text');
-      if (btn) btn.innerText = "Checking...";
-
-      const apiKey = getStoredApiKey();
-
-      // Extract parameters using AI if connected, else heuristic
-      if (apiKey) {
-        try {
-          const extractPrompt = `
-You are MakeMyVacation's internal trip engine (West Bengal, India).
-Extract new trip details from this user message: "${text}".
-Current known state: ${JSON.stringify(state)}
-Available destinations: Dooars, Lataguri, Murti, Mandarmani, Shantiniketan, Darjeeling.
-
-Return STRICT JSON:
-{
-  "destination": string or null,
-  "preferredArea": string or null,
-  "durationNights": number or null,
-  "adults": number or null,
-  "rooms": number or null,
-  "budget": number or null,
-  "amenities": array of strings
-}`;
-          const jsonResponse = await executeAIRequest(extractPrompt, true);
-          const parsed = JSON.parse(jsonResponse);
-
-          if (parsed.destination) state.destination = parsed.destination;
-          if (parsed.preferredArea) state.preferredArea = parsed.preferredArea;
-          if (parsed.durationNights) state.durationNights = parsed.durationNights;
-          if (parsed.adults) state.adults = parsed.adults;
-          if (parsed.rooms) state.rooms = parsed.rooms;
-          if (parsed.budget) state.budget = parsed.budget;
-          if (parsed.amenities && parsed.amenities.length) state.amenitiesRequired = Array.from(new Set([...state.amenitiesRequired, ...parsed.amenities]));
-        } catch(e) {
-          localFallbackExtract(text);
-        }
-      } else {
-        localFallbackExtract(text);
-      }
+      localExtract(text);
 
       if (!state.rooms && state.adults) {
         state.rooms = state.adults > 2 ? 2 : 1;
@@ -731,19 +833,17 @@ Return STRICT JSON:
 
       updateLiveBadges();
 
-      // SMART MISSING INFO INTERROGATOR LOOP
+      // Check missing parameters
       const missing = [];
       if (!state.destination) missing.push('destination');
       if (!state.durationNights) missing.push('duration');
       if (!state.adults) missing.push('guests');
       if (!state.budget) missing.push('budget');
 
-      if (btn) btn.innerText = "Send";
-
       if (missing.length > 0) {
         askNextFollowUp(missing);
       } else {
-        // ALL INFO COLLECTED!
+        // All parameters found!
         appendChatMessage('ai', `🎉 Perfect! I now have all your details:
 • **Destination:** ${state.destination}
 • **Duration:** ${state.durationNights + 1} Days (${state.durationNights} Nights)
@@ -752,7 +852,7 @@ Return STRICT JSON:
 
 Searching verified resort inventory and crafting your day-by-day plan now...`);
         
-        setTimeout(startPlanningPipeline, 800);
+        setTimeout(startPlanningPipeline, 700);
       }
     }
 
@@ -794,7 +894,7 @@ Searching verified resort inventory and crafting your day-by-day plan now...`);
       }
     }
 
-    function localFallbackExtract(raw) {
+    function localExtract(raw) {
       const t = raw.toLowerCase();
 
       // Destination
@@ -833,7 +933,7 @@ Searching verified resort inventory and crafting your day-by-day plan now...`);
         state.tripType = 'couple';
       }
 
-      // Budget (e.g., 25000, 25k, ₹30,000, 15000rs)
+      // Budget
       const budgetMatch = t.match(/(?:₹|rs\.?|inr)?\s*(\d{1,3}(?:,\d{3})*|\d+)\s*(k|thousand|lakh)?/i);
       if (budgetMatch && (t.includes('budget') || t.includes('k') || t.includes('₹') || t.includes('under') || t.includes('around') || t.includes('rs') || t.includes('approx') || t.includes('spend'))) {
         let val = parseFloat(budgetMatch[1].replace(/,/g, ''));
@@ -854,10 +954,10 @@ Searching verified resort inventory and crafting your day-by-day plan now...`);
       document.getElementById('loading-view').classList.remove('hidden');
 
       const pipelineSteps = [
-        'Analyzing complete trip parameters & preferences',
-        `Querying verified resort inventory in ${state.destination || 'West Bengal'}`,
-        'Evaluating room layouts, capacity & season pricing',
-        'Running recommendation scoring engine',
+        'Analyzing verified resort inventories',
+        `Checking availability & layouts in ${state.destination || 'West Bengal'}`,
+        'Evaluating capacity rules and seasonal pricing',
+        'Running multi-variable recommendation scoring engine',
         'Generating customized daily itinerary & transfer timings',
         'Finalizing your vacation plan...'
       ];
@@ -888,7 +988,7 @@ Searching verified resort inventory and crafting your day-by-day plan now...`);
       }, 350);
     }
 
-    async function buildAndRenderPlan() {
+    function buildAndRenderPlan() {
       try {
         const allResorts = window.MMV.getResorts();
         const destinationResorts = allResorts.filter(r => 
@@ -908,32 +1008,7 @@ Searching verified resort inventory and crafting your day-by-day plan now...`);
         const transportCost = 1500;
         const totalVacationCost = stayCost + foodCost + activityCost + transportCost;
 
-        let itinerary = null;
-        const apiKey = getStoredApiKey();
-        if (apiKey) {
-          try {
-            const itinPrompt = `
-Generate a realistic ${duration + 1}-day vacation itinerary for ${state.destination}, staying at ${top.name} in ${top.area}.
-Return STRICT JSON:
-[
-  {
-    "day": 1,
-    "title": "...",
-    "events": [
-      { "time": "11:30 AM", "title": "...", "desc": "..." }
-    ]
-  }
-]`;
-            const itinJson = await executeAIRequest(itinPrompt, true);
-            itinerary = JSON.parse(itinJson);
-          } catch(e) {
-            console.warn("Using local itinerary generator:", e);
-          }
-        }
-
-        if (!itinerary || !itinerary.length) {
-          itinerary = generateLocalItinerary(state.destination || 'Dooars', duration, top);
-        }
+        const itinerary = generateLocalItinerary(state.destination || 'Dooars', duration, top);
 
         activePlan = {
           destination: state.destination || 'Dooars',
@@ -1119,13 +1194,13 @@ Return STRICT JSON:
       renderPlanToUI(activePlan);
     }
 
-    async function handleModifyPlan() {
+    function handleModifyPlan() {
       const inputEl = document.getElementById('modify-input');
       const text = inputEl.value.trim();
       if (!text) return;
       inputEl.value = '';
 
-      localFallbackExtract(text);
+      localExtract(text);
 
       if (text.toLowerCase().includes('night') || text.toLowerCase().includes('extend')) {
         state.durationNights = (state.durationNights || 3) + 1;
@@ -1195,7 +1270,7 @@ Return STRICT JSON:
     document.addEventListener('DOMContentLoaded', () => {
       renderHomeDestinations();
       window.MMV.updateNavBadges();
-      updateApiKeyButtonState();
+      updateAuthUI();
       updateLiveBadges();
 
       const input = document.getElementById('user-input');
